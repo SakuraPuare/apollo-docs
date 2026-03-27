@@ -37,7 +37,7 @@ class TaskManagerComponent final : public cyber::Component<task_manager::Task> {
 | 类型 | 通道/服务 | 用途 |
 |---|---|---|
 | Reader | `/apollo/localization/pose` | 实时获取车辆定位 |
-| Reader | `/apollo/planning/command` | 监听规划命令状态 |
+| Reader | `/apollo/planning/command` | 通过比较 sequence_num 判断路由是否被 Planning 接受 |
 | Client | `/apollo/external_command/lane_follow` | 发送沿车道行驶命令 |
 
 `Proc()` 阶段根据 `task.task_type()` 分发处理，当前支持 `CYCLE_ROUTING` 类型。
@@ -192,8 +192,10 @@ module_config {
 
 ### 启动方式
 
+使用 mainboard 启动：
+
 ```bash
-cyber_launch start modules/task_manager/launch/task_manager.launch
+mainboard -d modules/task_manager/dag/task_manager.dag
 ```
 
 ## 任务类型
