@@ -351,7 +351,7 @@ CanbusComponent::Proc() (100Hz 定时触发)
 // canbus_conf.proto
 message CanbusConf {
   // VehicleParameter 来自 vehicle_parameter.proto（通过 import 引入）
-  optional apollo.common.VehicleParameter vehicle_parameter = 1;
+  optional VehicleParameter vehicle_parameter = 1;
   optional CANCardParameter can_card_parameter = 2;
   optional bool enable_debug_mode = 3 [default = false];
   optional bool enable_receiver_log = 4 [default = false];
