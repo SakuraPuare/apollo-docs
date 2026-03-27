@@ -57,7 +57,7 @@ class ControlTask {
 
 ### DependencyInjector
 
-依赖注入容器，定义于 `controller_task_base/common/dependency_injector.h`，在各控制器间共享以下状态：
+依赖注入容器，定义于 `control_component/controller_task_base/common/dependency_injector.h`，在各控制器间共享以下状态：
 
 - `VehicleStateProvider`：车辆状态（位置、速度、加速度、航向等）
 - 上一周期的 `ControlCommand` 和 `ControlDebugInfo`
@@ -66,7 +66,7 @@ class ControlTask {
 
 ### TrajectoryAnalyzer
 
-轨迹分析工具，定义于 `controller_task_base/common/trajectory_analyzer.h`，提供：
+轨迹分析工具，定义于 `control_component/controller_task_base/common/trajectory_analyzer.h`，提供：
 
 - `QueryNearestPointByAbsoluteTime()` / `QueryNearestPointByRelativeTime()`：按时间查询轨迹点
 - `QueryNearestPointByPosition()`：按位置查询最近轨迹点
@@ -191,25 +191,25 @@ acceleration_cmd = acceleration_cmd_closeloop
 
 ### 辅助控制器
 
-| 控制器 | 源码路径 | 功能 |
-|--------|----------|------|
-| `AntiSlipControlTask` | `controllers/slope_anti_slip_control_task/` | 坡道防溜控制，检测坡道起步条件并调整油门/刹车策略 |
-| `ReplanControlTask` | `controllers/replan_control_task/` | 重规划控制，根据安全决策判断是否需要触发轨迹重规划 |
-| `DemoControlTask` | `controllers/demo_control_task/` | 示例控制器，演示插件开发模式 |
-| `DebugInfoControlTask` | `controllers/debug_info_control_task/` | 调试信息收集控制器 |
+| 控制器 | 源码路径 | 继承自 | 功能 |
+|--------|----------|--------|------|
+| `AntiSlipControlTask` | `controllers/slope_anti_slip_control_task/` | `ControlTaskExtend` | 坡道防溜控制，检测坡道起步条件并调整油门/刹车策略 |
+| `ReplanControlTask` | `controllers/replan_control_task/` | `ControlTaskExtend` | 重规划控制，根据安全决策判断是否需要触发轨迹重规划 |
+| `DemoControlTask` | `controllers/demo_control_task/` | `ControlTask` | 示例控制器，演示插件开发模式 |
+| `DebugInfoControlTask` | `controllers/debug_info_control_task/` | `ControlTaskExtend` | 调试信息收集控制器 |
 
 ### 基础控制算法组件
 
 | 组件 | 路径 | 说明 |
 |------|------|------|
-| `PIDController` | `controller_task_base/common/pid_controller.h` | 标准 PID 控制器（默认积分保持） |
-| `PIDBCController` | `controller_task_base/common/pid_BC_controller.h` | PID + 反向计算抗积分饱和 |
-| `PIDICController` | `controller_task_base/common/pid_IC_controller.h` | PID + 积分钳位抗积分饱和 |
-| `LeadlagController` | `controller_task_base/common/leadlag_controller.h` | 超前-滞后补偿器（双线性变换离散化） |
-| `MracController` | `controller_task_base/common/mrac_controller.h` | 模型参考自适应控制器（1/2 阶） |
-| `Interpolation1D` | `controller_task_base/common/interpolation_1d.h` | 一维线性插值 |
-| `Interpolation2D` | `controller_task_base/common/interpolation_2d.h` | 二维线性插值（用于标定表查表） |
-| `HysteresisFilter` | `controller_task_base/common/hysteresis_filter.h` | 迟滞滤波器 |
+| `PIDController` | `control_component/controller_task_base/common/pid_controller.h` | 标准 PID 控制器（默认积分保持） |
+| `PIDBCController` | `control_component/controller_task_base/common/pid_BC_controller.h` | PID + 反向计算抗积分饱和 |
+| `PIDICController` | `control_component/controller_task_base/common/pid_IC_controller.h` | PID + 积分钳位抗积分饱和 |
+| `LeadlagController` | `control_component/controller_task_base/common/leadlag_controller.h` | 超前-滞后补偿器（双线性变换离散化） |
+| `MracController` | `control_component/controller_task_base/common/mrac_controller.h` | 模型参考自适应控制器（1/2 阶） |
+| `Interpolation1D` | `control_component/controller_task_base/common/interpolation_1d.h` | 一维线性插值 |
+| `Interpolation2D` | `control_component/controller_task_base/common/interpolation_2d.h` | 二维线性插值（用于标定表查表） |
+| `HysteresisFilter` | `control_component/controller_task_base/common/hysteresis_filter.h` | 迟滞滤波器 |
 
 ## 横向/纵向控制分离设计
 
@@ -385,7 +385,7 @@ double calibration_value = control_interpolation_->Interpolate(
 默认标定表（`conf/calibration_table.pb.txt`）覆盖：
 
 - 车速范围：0.0 ~ 10.0 m/s（步长 0.2 m/s）
-- 加速度范围：约 -9.0 ~ +3.3 m/s²
+- 加速度范围：约 -9.4 ~ +3.3 m/s²
 - 指令范围：-35（最大刹车）~ 80（最大油门）
 
 标定表需要针对具体车型通过实车测试获取，是控制效果的关键因素之一。
@@ -403,12 +403,12 @@ double calibration_value = control_interpolation_->Interpolate(
 | `pipeline_file` | `conf/pipeline.pb.txt` | 控制器流水线配置文件路径 |
 | `calibration_table_file` | `conf/calibration_table.pb.txt` | 标定表文件路径 |
 | `control_period` | 0.01 | 控制周期（秒） |
-| `enable_gain_scheduler` | true | 启用增益调度 |
+| `enable_gain_scheduler` | false | 启用增益调度（control.conf 中配置为 true） |
 | `use_control_submodules` | false | 是否使用子模块模式 |
 | `enable_input_timestamp_check` | false | 启用输入时间戳检查 |
-| `soft_estop_brake` | 15.0 | 软急停刹车百分比 |
+| `soft_estop_brake` | 50.0 | 软急停刹车百分比（control.conf 中配置为 15.0） |
 | `minimum_speed_protection` | 0.1 | 最小速度保护值（m/s） |
-| `enable_persistent_estop` | false | 持久化急停模式 |
+| `enable_persistent_estop` | true | 持久化急停模式（control.conf 中配置为 false） |
 
 ### 控制器流水线：pipeline.pb.txt
 
