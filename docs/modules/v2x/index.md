@@ -210,14 +210,14 @@ modules/v2x/
 
 融合参数通过 `fusion_params.pt` 配置，关键参数：
 
-| 参数 | 默认值 | 说明 |
-|------|--------|------|
-| `max_match_distance` | 10 (米) | 最大匹配距离 |
-| `min_score` | 0 | 最小匹配分数阈值 |
-| `prob_scale` | 0.125 | 类型概率缩放因子 |
-| `confidence_level` | C99P | 置信度水平（用于马氏距离阈值） |
-| `check_type` | false | 是否启用类型匹配 |
-| `use_mahalanobis_distance` | true | 是否使用马氏距离 |
+| 参数 | 配置值 | proto 默认值 | 说明 |
+|------|--------|-------------|------|
+| `max_match_distance` | 10 (米) | 10 | 最大匹配距离 |
+| `min_score` | 0 | 0 | 最小匹配分数阈值 |
+| `prob_scale` | 0.125 | 0.125 | 类型概率缩放因子 |
+| `confidence_level` | C99P | C975P | 置信度水平（用于马氏距离阈值） |
+| `check_type` | false | false | 是否启用类型匹配 |
+| `use_mahalanobis_distance` | true | false | 是否使用马氏距离 |
 
 ## 通信协议
 
@@ -459,11 +459,10 @@ cyber_launch start modules/v2x/launch/v2x.launch
 <cyber>
     <module>
         <name>v2x</name>
+        <dag_conf></dag_conf>
         <type>binary</type>
-        <process_name>
-           /apollo/bazel-bin/modules/v2x/v2x_proxy/app/v2x
-           --flagfile=/apollo/modules/v2x/conf/v2x.conf
-        </process_name>
+        <process_name>/apollo/bazel-bin/modules/v2x/v2x_proxy/app/v2x --flagfile=/apollo/modules/v2x/conf/v2x.conf</process_name>
+        <version>1.0.0</version>
     </module>
 </cyber>
 ```
