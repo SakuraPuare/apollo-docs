@@ -312,6 +312,22 @@ export default withMermaid(defineConfig({
       },
     ],
 
+    /** 首页等无侧边栏页面底部；message / copyright 支持 HTML（见 VPFooter） */
+    footer: {
+      message: [
+        `<span class="apollo-footer-byline">`,
+        `Apollo 技术导读由社区整理，内容参考 `,
+        `<a href="${apolloUpstreamURL}" target="_blank" rel="noopener noreferrer">ApolloAuto/apollo</a> `,
+        `开源仓库；与百度及 Apollo 商业产品无隶属关系。<br />`,
+        `维护与协作见 `,
+        `<a href="${docsRepoURL}" target="_blank" rel="noopener noreferrer">${docsGitHubOwner}/apollo-docs</a>。`,
+        `</span>`,
+      ].join(''),
+      copyright:
+        `© ${new Date().getFullYear()} Apollo Docs 读者共建 · `
+        + `<a href="${docsRepoURL}/graphs/contributors" target="_blank" rel="noopener noreferrer">致谢贡献者</a>`,
+    },
+
     search: { provider: 'local' },
     outline: { level: [2, 3] },
   },
