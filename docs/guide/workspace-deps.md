@@ -25,7 +25,7 @@ Apollo 同时维护了百度 CDN 镜像（`apollo-system.cdn.bcebos.com`）和 G
 | `bazel_skylib` | 1.0.3 | [GitHub](https://github.com/bazelbuild/bazel-skylib) | `http_archive` | Bazel 通用工具库，提供常用 Starlark 函数 |
 | `rules_proto` | 97d8af4 (commit) | [GitHub](https://github.com/bazelbuild/rules_proto) | `http_archive` | Protobuf 构建规则 |
 | `rules_python` | 0.1.0 | [GitHub](https://github.com/bazelbuild/rules_python) | `http_archive` | Python 构建规则 |
-| `com_github_grpc_grpc` | 1.30.0 (Apollo 定制) | [GitHub](https://github.com/grpc/grpc) | `http_archive` | gRPC 远程过程调用框架（已打补丁） |
+| `com_github_grpc_grpc` | 1.30.0 (Apollo 定制) | [百度 CDN](https://apollo-system.cdn.bcebos.com/) | `http_archive` | gRPC 远程过程调用框架（Apollo 定制版 v1.30.0-apollo，已打补丁） |
 | `zlib` | 1.2.11 | [GitHub](https://github.com/madler/zlib) | `http_archive` | 通用数据压缩库，gRPC/Protobuf 的传递依赖 |
 
 > 最低 Bazel 版本要求：**3.7.0**（通过 `bazel_skylib` 的 `versions.check` 校验）
