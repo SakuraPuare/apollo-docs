@@ -35,8 +35,11 @@ class Storytelling final : public apollo::cyber::TimerComponent {
 
 ```cpp
 class BaseTeller {
+  explicit BaseTeller(const std::shared_ptr<FrameManager>& frame_manager);
   virtual void Init(const StorytellingConfig& storytelling_conf) = 0;
   virtual void Update(Stories* stories) = 0;
+protected:
+  std::shared_ptr<FrameManager> frame_manager_;
 };
 ```
 
@@ -48,8 +51,7 @@ class BaseTeller {
 
 | Story 类型 | 检测目标 | 说明 |
 |---|---|---|
-| `close_to_junction` | Junction（路口） | 车辆接近普通路口 |
-| `close_to_pnc_junction` | PNC Junction | 车辆接近 PNC 路口 |
+| `close_to_junction` | Junction / PNC Junction | 车辆接近路口（type 字段区分普通路口和 PNC 路口，PNC 优先） |
 | `close_to_clear_area` | Clear Area（禁停区） | 车辆接近禁停区域 |
 | `close_to_crosswalk` | Crosswalk（人行横道） | 车辆接近人行横道 |
 | `close_to_signal` | Signal（信号灯） | 车辆接近信号灯 |
