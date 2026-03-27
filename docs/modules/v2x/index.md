@@ -95,7 +95,7 @@ modules/v2x/
 | `v2x_car_status_timer_` | `cyber::Timer` | 定时上报车辆状态到 OBU |
 | `recv_thread_` | `std::thread` | 接收交通灯数据的工作线程 |
 | `obs_thread_` | `std::thread` | 接收障碍物数据的工作线程 |
-| `rsi_thread_` | `std::thread` | 接收 RSI 数据的工作线程 |
+| `rsi_thread_` | `std::thread` | RSI 数据线程（已声明但当前代码中未启用） |
 | `planning_thread_` | `std::thread` | 接收规划轨迹的工作线程 |
 #### ObuInterFaceBase（OBU 接口抽象基类）
 
