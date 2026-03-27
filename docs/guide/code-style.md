@@ -31,6 +31,7 @@ trim_trailing_whitespace = true
 shell_variant = bash
 switch_case_indent = true
 space_redirects = true
+binary_next_line = true
 
 [Makefile]
 indent_style = tab
@@ -105,13 +106,19 @@ includeorder=standardcfirst
 // 命名空间：全小写，用下划线分隔
 namespace apollo {
 namespace common {
-namespace math {
 
 // 类名：大驼峰（PascalCase）
-class DigitalFilter { ... };
-class VehicleConfigHelper { ... };
-class AABox2d { ... };
-class AtomicRWLock { ... };
+class DigitalFilter { ... };       // common::DigitalFilter
+class VehicleConfigHelper { ... }; // common::VehicleConfigHelper
+
+namespace math {
+class AABox2d { ... };             // common::math::AABox2d
+}  // namespace math
+}  // namespace common
+
+namespace cyber {
+class AtomicRWLock { ... };        // cyber::AtomicRWLock
+}  // namespace cyber
 
 // 公有方法：大驼峰
 double Filter(const double x_insert);
@@ -167,7 +174,7 @@ OutputType FooBar(const InputType& input);
 
 ### 头文件保护
 
-推荐使用 `#pragma once`，但部分旧代码仍使用传统 include guard：
+`modules/` 目录下的代码推荐使用 `#pragma once`，而 `cyber/` 框架代码主要使用传统 include guard：
 
 ```cpp
 // 推荐
@@ -221,7 +228,6 @@ OutputType FooBar(const InputType& input);
 /**
  * @brief Processes a new measurement with the filter.
  * @param x_insert The new input to be processed by the filter.
- * @return The filtered output value.
  */
 double Filter(const double x_insert);
 ```
