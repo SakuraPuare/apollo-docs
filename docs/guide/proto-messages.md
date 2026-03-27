@@ -73,6 +73,7 @@ message Header {
   optional uint64 radar_timestamp = 6;  // 毫米波雷达时间戳
   optional uint32 version = 7;          // 消息版本号
   optional StatusPb status = 8;         // 状态信息
+  optional string frame_id = 9;        // 帧标识
 }
 ```
 
@@ -188,7 +189,6 @@ message ControlCommand {
   optional bool parking_brake = 6;      // 驻车制动
   optional double speed = 7;            // 目标速度
   optional double acceleration = 8;     // 目标加速度
-  optional double deceleration = 9;     // 目标减速度
   optional GearPosition gear_location = 10;
   optional Debug debug = 11;
   optional Signal signal = 12;
@@ -219,7 +219,8 @@ message LocalizationEstimate {
   optional Uncertainty uncertainty = 3;      // 不确定度
   optional double measurement_time = 4;      // 测量时间
   repeated TrajectoryPoint trajectory_point = 5;
-  optional MsfStatus msfStatus = 6;          // 多传感器融合状态
+  optional MsfStatus msf_status = 6;          // 多传感器融合状态
+  optional MsfSensorMsgStatus sensor_status = 7; // 传感器消息状态
 }
 ```
 
@@ -270,7 +271,7 @@ message PerceptionObstacle {
   optional double tracking_time = 9;       // 跟踪时长
   optional Type type = 10;                 // 障碍物类型
   optional double timestamp = 11;
-  optional PointCloud point_cloud = 12;
+  repeated double point_cloud = 12 [packed = true];
   optional double confidence = 13;         // 置信度
   // ... acceleration, anchor_point, bbox2d, sub_type 等
 }
@@ -331,8 +332,8 @@ message PredictionObstacle {
   optional double timestamp = 2;
   optional double predicted_period = 3;     // 预测时间范围
   repeated Trajectory trajectory = 4;       // 预测轨迹（可能多条）
-  optional Intent intent = 5;               // 意图
-  optional Priority priority = 6;           // 优先级
+  optional ObstacleIntent intent = 5;               // 意图
+  optional ObstaclePriority priority = 6;           // 优先级
   optional bool is_static = 7;              // 是否静止
 }
 ```
@@ -360,14 +361,12 @@ message ADCTrajectory {
   optional EStop estop = 5;                 // 紧急停车
   repeated PathPoint path_point = 6;
   optional bool is_replan = 7;              // 是否重新规划
-  optional GearPosition gear = 8;
-  optional Decision decision = 9;           // 决策信息
+  optional apollo.planning_internal.Debug debug = 8; // 调试信息
   optional LatencyStats latency_stats = 10;
-  optional RoutingHeader routing_header = 11;
-  optional Debug debug = 12;
   optional RightOfWayStatus right_of_way_status = 13;
-  repeated string lane_id = 14;
+  optional DecisionResult decision = 14;   // 决策信息
   optional EngageAdvice engage_advice = 15;
+  optional apollo.common.Header routing_header = 16;
   // ... critical_region, trajectory_type 等
 }
 
@@ -416,7 +415,7 @@ message RoutingRequest {
 
 message RoutingResponse {
   optional Header header = 1;
-  repeated Road road = 2;                   // 路径道路序列
+  repeated RoadSegment road = 2;                   // 路径道路序列
   optional Measurement measurement = 3;     // 路径度量
   optional RoutingRequest routing_request = 4;
   optional MapVersion map_version = 5;
@@ -543,7 +542,7 @@ Dreamview 是 Apollo 的可视化与人机交互界面，相关消息定义了 H
 ```protobuf
 message HMIStatus {
   optional Header header = 1;
-  map<string, HMIMode> modes = 2;
+  repeated string modes = 2;
   optional string current_mode = 3;
   map<string, bool> maps = 4;
   optional string current_map = 5;

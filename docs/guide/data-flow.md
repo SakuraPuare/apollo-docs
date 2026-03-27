@@ -77,7 +77,7 @@ graph LR
     IMU -->|"/apollo/sensor/gnss/imu"| MSF
 
     %% 传感器 → 感知
-    LiDAR -->|"/apollo/sensor/lidar/compensator/PointCloud2"| LiDAR_Pipeline
+    LiDAR -->|"PointCloud2"| LiDAR_Pipeline
     Camera -->|"/apollo/sensor/camera/front_6mm/image"| Camera_Pipeline
     Camera -->|"/apollo/sensor/camera/front_12mm/image"| Camera_Pipeline
     Radar -->|"/apollo/sensor/conti_radar"| Fusion
@@ -99,7 +99,7 @@ graph LR
     PredModule -->|"/apollo/prediction"| PlanModule
 
     %% 路由 → 规划
-    RoutingModule -->|"/apollo/routing/routing_response"| PlanModule
+    RoutingModule -->|"/apollo/routing_response"| PlanModule
 
     %% CAN → 规划/控制（底盘反馈）
     CanbusModule -->|"/apollo/canbus/chassis"| PlanModule
@@ -131,34 +131,42 @@ graph LR
 
 ### LiDAR 感知流水线
 
-LiDAR 流水线定义在 `lidar_detection_pipeline.dag` 中，由五个串行 Component 组成：
+LiDAR 流水线定义在 `lidar_detection_pipeline.dag` 中，由七个串行 Component 组成：
 
 ```mermaid
 graph TD
     subgraph LiDAR_Pipeline["LiDAR 感知流水线"]
         A["PointCloudPreprocessComponent<br/>点云预处理"]
-        B["LidarDetectionComponent<br/>障碍物检测"]
-        C["LidarDetectionFilterComponent<br/>检测过滤"]
-        D["LidarTrackingComponent<br/>目标跟踪"]
-        E["LidarOutputComponent<br/>输出组件"]
+        B["PointCloudMapROIComponent<br/>地图 ROI 过滤"]
+        C["PointCloudGroundDetectComponent<br/>地面检测"]
+        D["LidarDetectionComponent<br/>障碍物检测"]
+        E["LidarDetectionFilterComponent<br/>检测过滤"]
+        F["LidarTrackingComponent<br/>目标跟踪"]
+        G["LidarOutputComponent<br/>输出组件"]
     end
 
-    Input["/apollo/sensor/lidar/compensator/PointCloud2"]
+    Input["/apollo/sensor/velodyne64/compensator/PointCloud2"]
     Output["/apollo/perception/obstacles"]
 
     Input -->|"PointCloud2"| A
     A -->|"/perception/lidar/pointcloud_preprocess"| B
-    B -->|"/perception/lidar/detection"| C
-    C -->|"/perception/lidar/detection_filter"| D
-    D -->|"/perception/inner/PrefusedObjects"| E
-    E -->|"PerceptionObstacles"| Output
+    B -->|"/perception/lidar/pointcloud_map_based_roi"| C
+    C -->|"/perception/lidar/pointcloud_ground_detection"| D
+    D -->|"/perception/lidar/detection"| E
+    E -->|"/perception/lidar/detection_filter"| F
+    F -->|"/perception/inner/PrefusedObjects"| G
+    G -->|"PerceptionObstacles"| Output
 
     style A fill:#4a9eff,color:#fff
     style B fill:#4a9eff,color:#fff
     style C fill:#4a9eff,color:#fff
     style D fill:#4a9eff,color:#fff
     style E fill:#4a9eff,color:#fff
+    style F fill:#4a9eff,color:#fff
+    style G fill:#4a9eff,color:#fff
 ```
+
+> **注意**：LiDAR 输入 Channel 名称因传感器型号而异，例如 `/apollo/sensor/velodyne64/compensator/PointCloud2`、`/apollo/sensor/lidar16/compensator/PointCloud2`、`/apollo/sensor/lidar128/compensator/PointCloud2` 等。
 
 ### Camera 感知流水线
 
@@ -166,7 +174,9 @@ graph TD
 graph TD
     subgraph Camera_Pipeline["Camera 感知流水线"]
         CA["CameraDetectionSingleStageComponent<br/>单阶段检测"]
-        CB["CameraTrackingComponent<br/>目标跟踪"]
+        CB["CameraLocationEstimationComponent<br/>位置估计"]
+        CC["CameraLocationRefinementComponent<br/>位置精化"]
+        CD["CameraTrackingComponent<br/>目标跟踪"]
     end
 
     subgraph Traffic_Light["交通灯检测流水线"]
@@ -181,8 +191,10 @@ graph TD
 
     Cam6 -->|"Image"| CA
     Cam12 -->|"Image"| CA
-    CA -->|"CameraDetection"| CB
-    CB -->|"CameraObjects"| ObstOut
+    CA -->|"/perception/inner/Detection"| CB
+    CB -->|"/perception/inner/location_estimation"| CC
+    CC -->|"/perception/inner/location_refinement"| CD
+    CD -->|"/perception/inner/PrefusedObjects"| ObstOut
 
     Cam6 -->|"Image"| TL1
     TL1 -->|"TrafficLightDetection"| TL2
@@ -190,6 +202,8 @@ graph TD
 
     style CA fill:#ff9f43,color:#fff
     style CB fill:#ff9f43,color:#fff
+    style CC fill:#ff9f43,color:#fff
+    style CD fill:#ff9f43,color:#fff
     style TL1 fill:#ee5a24,color:#fff
     style TL2 fill:#ee5a24,color:#fff
 ```
@@ -223,7 +237,7 @@ graph LR
 
 | Channel | 消息类型 | 发布者 | 订阅者 |
 |---------|---------|--------|--------|
-| `/apollo/sensor/lidar/compensator/PointCloud2` | PointCloud | LiDAR 驱动 | 感知（LiDAR 流水线） |
+| `/apollo/sensor/velodyne64/compensator/PointCloud2` | PointCloud | LiDAR 驱动 | 感知（LiDAR 流水线） |
 | `/apollo/sensor/camera/front_6mm/image` | Image | Camera 驱动 | 感知（Camera 流水线、交通灯检测） |
 | `/apollo/sensor/camera/front_12mm/image` | Image | Camera 驱动 | 感知（Camera 流水线） |
 | `/apollo/sensor/gnss/odometry` | Gps | GNSS 驱动 | 定位（RTK） |
@@ -245,7 +259,7 @@ graph LR
 | `/apollo/control` | ControlCommand | 控制 | CAN 总线、Guardian |
 | `/apollo/canbus/chassis` | Chassis | CAN 总线 | 规划、控制、Guardian |
 | `/apollo/canbus/chassis_detail` | ChassisDetail | CAN 总线 | 监控 |
-| `/apollo/routing/routing_response` | RoutingResponse | 路由 | 规划 |
+| `/apollo/routing_response` | RoutingResponse | 路由 | 规划 |
 
 ### 辅助模块 Channel
 
@@ -260,10 +274,15 @@ graph LR
 
 | Channel | 消息类型 | 发布者 | 订阅者 |
 |---------|---------|--------|--------|
-| `/perception/lidar/pointcloud_preprocess` | PointCloud | PointCloudPreprocessComponent | LidarDetectionComponent |
+| `/perception/lidar/pointcloud_preprocess` | LidarFrame | PointCloudPreprocessComponent | PointCloudMapROIComponent |
+| `/perception/lidar/pointcloud_map_based_roi` | LidarFrame | PointCloudMapROIComponent | PointCloudGroundDetectComponent |
+| `/perception/lidar/pointcloud_ground_detection` | LidarFrame | PointCloudGroundDetectComponent | LidarDetectionComponent |
 | `/perception/lidar/detection` | LidarDetection | LidarDetectionComponent | LidarDetectionFilterComponent |
 | `/perception/lidar/detection_filter` | LidarDetection | LidarDetectionFilterComponent | LidarTrackingComponent |
 | `/perception/inner/PrefusedObjects` | SensorObjects | LidarTrackingComponent | LidarOutputComponent |
+| `/perception/inner/Detection` | CameraFrame | CameraDetectionSingleStageComponent | CameraLocationEstimationComponent |
+| `/perception/inner/location_estimation` | CameraFrame | CameraLocationEstimationComponent | CameraLocationRefinementComponent |
+| `/perception/inner/location_refinement` | CameraFrame | CameraLocationRefinementComponent | CameraTrackingComponent |
 
 ## 辅助数据流
 
