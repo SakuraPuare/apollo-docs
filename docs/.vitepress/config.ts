@@ -27,9 +27,26 @@ export default defineConfig({
           text: '构建与依赖',
           items: [
             { text: '构建系统', link: '/guide/build-system' },
+            { text: '自定义 Bazel 规则', link: '/guide/bazel-rules' },
+            { text: 'BUILD 文件模式', link: '/guide/build-patterns' },
             { text: '第三方依赖库', link: '/guide/dependencies' },
             { text: 'WORKSPACE 依赖', link: '/guide/workspace-deps' },
             { text: '代码规范', link: '/guide/code-style' },
+          ],
+        },
+        {
+          text: '数据与配置',
+          items: [
+            { text: 'Proto 消息定义', link: '/guide/proto-messages' },
+            { text: '跨模块数据流', link: '/guide/data-flow' },
+            { text: '配置体系', link: '/guide/configuration' },
+          ],
+        },
+        {
+          text: '开发实践',
+          items: [
+            { text: '新增模块指南', link: '/guide/create-module' },
+            { text: '测试体系指南', link: '/guide/testing' },
           ],
         },
         {
@@ -66,6 +83,7 @@ export default defineConfig({
           text: '感知与决策',
           items: [
             { text: 'Perception 感知', link: '/modules/perception/' },
+            { text: 'Perception 核心算法', link: '/modules/perception/algorithms' },
             { text: 'Prediction 预测', link: '/modules/prediction/' },
             { text: 'Planning 规划', link: '/modules/planning/' },
             { text: 'Control 控制', link: '/modules/control/' },
