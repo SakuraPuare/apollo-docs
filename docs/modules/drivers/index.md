@@ -88,7 +88,7 @@ CanClient (抽象基类)
 
 `CanSender<SensorType>` 在独立线程中按周期调用 `CanClient::Send()`，发送控制帧。
 
-`SensorCanbus<SensorType>` 是基于 CAN 总线的传感器 Component 模板基类，封装了 `CanClient`、`CanReceiver`、`MessageManager` 的完整初始化和运行流程。
+`SensorCanbus<SensorType>` 是基于 CAN 总线的传感器 Component 模板基类，仅封装了 `CanClient`、`CanReceiver`、`MessageManager` 的完整初始化和运行流程，不包含 `CanSender`。`CanSender` 是独立组件，用于车辆控制等其他场景（如 `ContiRadarCanbusComponent` 直接使用）。
 
 #### LiDAR 驱动抽象层
 
@@ -279,12 +279,12 @@ CanReceiver (接收线程)
   → MessageManager (协议分发)
     → ProtocolData (协议解析)
 
-CanSender (发送线程)
+CanSender (发送线程，独立组件，不属于 SensorCanbus)
   ← MessageManager (协议组装)
     ← ProtocolData (数据更新)
 
 SensorCanbus<SensorType> (Component 模板)
-  组合以上所有组件，提供完整的 CAN 传感器驱动框架
+  组合 CanClient、CanReceiver、MessageManager，提供 CAN 传感器驱动框架（不含 CanSender）
 ```
 
 `CanFrame` 结构体定义了标准 CAN 帧格式：ID (32位)、长度 (8位)、数据 (8字节)、时间戳。
@@ -382,9 +382,18 @@ message Config {
   optional Stream rtk_to = 4;         # RTK 差分输出 (可选)
   repeated bytes login_commands = 5;  # 登录命令序列
   repeated bytes logout_commands = 6; # 登出命令序列
+  oneof device_config {               # 设备配置
+    NovatelConfig novatel_config = 7;
+    UbloxConfig ublox_config = 8;
+  }
+  optional RtkSolutionType rtk_solution_type = 9; # RTK 方案类型
   optional ImuType imu_type = 10;     # IMU 型号
   optional string proj4_text = 11;    # 坐标投影参数
   optional TF tf = 12;               # TF 变换配置
+  optional string wheel_parameters = 13;  # 轮速参数
+  optional string gpsbin_folder = 14;     # GPS bin 文件夹
+  optional bool use_gnss_time = 15;       # 是否使用 GNSS 时间
+  optional bool auto_fill_gps_msg = 16;   # 是否自动填充 GPS 消息
 }
 ```
 
