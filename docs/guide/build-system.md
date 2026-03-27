@@ -33,7 +33,7 @@ WORKSPACE 通过 `http_archive` 引入以下 Bazel 官方规则集：
 | 规则集 | 版本 | 用途 |
 |--------|------|------|
 | `rules_foreign_cc` | 0.8.0 | 集成 CMake/Make 等外部构建系统 |
-| `rules_cc` | 0.0.1 | C/C++ 编译规则（含 Apollo 自定义补丁） |
+| `rules_cc` | 0.0.1 | C/C++ 编译规则（含 Apollo 自定义补丁 `//tools/package:rules_cc.patch`） |
 | `bazel_skylib` | 1.0.3 | Bazel 通用工具库，提供版本检查等功能 |
 | `rules_proto` | 97d8af4 | Protocol Buffers 编译规则 |
 | `rules_python` | 0.1.0 | Python 构建规则 |
@@ -75,23 +75,30 @@ pcl_configure(name = "local_config_pcl")           # PCL 点云库
 
 **第三方库加载（initialize_third_party）：**
 
-通过 `initialize_third_party()` 函数统一加载约 40 个第三方依赖，涵盖以下类别：
+通过 `initialize_third_party()` 函数统一加载约 39 个第三方依赖，涵盖以下类别：
 
 - **基础库**：abseil-cpp、Boost、gflags、glog、Protobuf、yaml-cpp
 - **数学/优化**：Eigen3、IPOPT、OSQP、ADOLC、ATLAS
 - **感知/推理**：OpenCV、PCL、LibTorch、PaddleInference、TensorRT、CenterPoint、CADDN
 - **通信**：Fast-RTPS/Fast-DDS、gRPC、CivetWeb
-- **可视化**：Qt5、VTK、OpenGL、GLEW
+- **可视化**：Qt5、VTK、OpenGL、~~GLEW~~（注：GLEW 在 `tools/workspace.bzl` 中的加载已被注释掉，当前未实际引入）
 - **多媒体**：FFmpeg、OpenH264、PortAudio、FFTW3、nvJPEG
 - **工具**：cpplint、Google Test、Google Benchmark、SQLite3、tinyxml2、nlohmann_json
 
 ### 2.5 镜像加速
 
-所有外部依赖均配置了双 URL 源：
+所有外部依赖均配置了双 URL 源，使用两种百度 CDN 域名：
 
 ```starlark
+# 大多数依赖使用 cdn.bcebos.com：
 urls = [
     "https://apollo-system.cdn.bcebos.com/archive/6.0/...",  # 百度 CDN 镜像（国内加速）
+    "https://github.com/...",                                  # GitHub 原始源
+]
+
+# 部分依赖（如 rules_foreign_cc）使用 bj.bcebos.com：
+urls = [
+    "https://apollo-system.bj.bcebos.com/archive/...",        # 百度 BJ 镜像
     "https://github.com/...",                                  # GitHub 原始源
 ]
 ```
@@ -156,6 +163,17 @@ build --define=LIBDIR=$(PREFIX)/lib
 build --define=INCLUDEDIR=$(PREFIX)/include
 build --define=use_fast_cpp_protos=true
 ```
+
+**GPU 平台预定义值：**
+
+`tools/bazel.rc` 中还定义了全局默认的 GPU 平台标志：
+
+```starlark
+build --define NVIDIA=0
+build --define AMD=1
+```
+
+这些默认值会被具体的 `--config=nvidia` 或 `--config=amd` 配置覆盖。
 
 ### 3.3 GPU 平台配置
 
@@ -248,6 +266,7 @@ test:unit_test --test_verbose_timeout_warnings
 coverage --instrument_test_targets
 coverage --combined_report=lcov
 coverage --nocache_test_results
+coverage --javabase="@bazel_tools//tools/jdk:remote_jdk11"
 coverage --cxxopt=--coverage
 coverage --cxxopt=-fprofile-arcs
 coverage --cxxopt=-ftest-coverage
@@ -312,10 +331,10 @@ install_src_files(
 
 `if_gpu` 宏来自 `//third_party/gpus:common.bzl`，根据是否启用 GPU 选择不同的依赖列表：
 
-- **GPU 模式**额外包含：`paddleinference`、`caddn_infer_op`、`tensorrt`、`npp`、`nvjpeg` 等 GPU 专用库
-- **CPU 模式**排除 GPU 专用推理库，但仍包含 `centerpoint_infer_op` 等可在 CPU 上运行的组件
+- **GPU 模式**额外包含：`paddleinference`、`caddn_infer_op`（GPU 专用推理库）。注意 `tensorrt`、`npp`、`nvjpeg` 在 GPU 和 CPU 列表中均存在
+- **CPU 模式**排除 GPU 专用推理库（`paddleinference`、`caddn_infer_op`），但仍包含 `centerpoint_infer_op` 等可在 CPU 上运行的组件
 
-安装目标覆盖约 40 个第三方库以及 `//scripts` 和 `//tools` 两个内部包。
+安装目标覆盖约 45 个第三方库（GPU 模式）或约 43 个（CPU 模式），以及 `//scripts` 和 `//tools` 两个内部包。
 
 ## 5. 使用示例
 
