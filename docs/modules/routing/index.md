@@ -94,7 +94,7 @@ node_cost = lane_length * speed_ratio + turn_penalty
 **边代价**（`edge_creator.cc`）：
 
 - 前向边：代价为 0
-- 变道边：`change_penalty * ratio`，其中 `ratio = (changing_area_length / base_changing_length) ^ (-1.5)`。可变道区域越短，惩罚越大，避免在短距离内强制变道
+- 变道边：`change_penalty * ratio`，其中仅当 `changing_area_length < base_changing_length` 时，`ratio = (changing_area_length / base_changing_length) ^ (-1.5)`；否则 `ratio = 1.0`。可变道区域越短，惩罚越大，避免在短距离内强制变道
 
 **默认配置值**（`routing_config.pb.txt`）：
 
@@ -114,7 +114,7 @@ double AStarStrategy::HeuristicCost(const TopoNode* src_node,
                                      const TopoNode* dest_node)
 ```
 
-使用欧几里得距离作为启发函数——计算当前节点 `AnchorPoint` 到目标节点 `AnchorPoint` 的直线距离。这是一个可接受的（admissible）启发函数，保证 A\* 找到最优解。
+使用曼哈顿距离（L1 距离）作为启发函数——计算当前节点 `AnchorPoint` 到目标节点 `AnchorPoint` 的 |Δx| + |Δy|。这是一个可接受的（admissible）启发函数，保证 A\* 找到最优解。
 
 #### 搜索流程
 
@@ -126,12 +126,12 @@ double AStarStrategy::HeuristicCost(const TopoNode* src_node,
    c. 将 current 移入 closed_set
    d. 遍历 current 的所有出边（通过 SubTopoGraph 获取，已排除黑名单区域）：
       - 跳过已在 closed_set 中的邻居
-      - 若变道未启用（change_lane_enabled_ == false），跳过左/右变道边
-      - 若变道边的剩余可行驶距离不足（GetResidualS），跳过
+      - 当 change_lane_enabled_ 为 false 或剩余可行驶距离不足 FLAGS_min_length_for_lane_change 时，仅考虑前向边（OutToSucEdge），否则考虑所有边（OutToAllEdge）
       - 计算 tentative_g = g_score[current] + GetCostToNeighbor(edge)
+      - 若为非前向边（变道边），tentative_g 还需减去 `(from_node->Cost() + to_node->Cost()) / 2`
       - 若 tentative_g < g_score[neighbor]，更新：
         · came_from_[neighbor] = current
-        · g_score[neighbor] = tentative_g
+        · g_score_[neighbor] 虽名为 g_score，但实际存储的是 f 值（g + h），即 `g_score_[neighbor] = tentative_g + HeuristicCost(neighbor, dest)`
         · enter_s_[neighbor] = 记录进入该 lane 的 s 值
         · f = tentative_g + HeuristicCost(neighbor, dest)
         · 将 neighbor 加入 open_set
@@ -174,11 +174,12 @@ HD Map (base_map.bin / .xml)
         │      │     │   （仅 DOTTED_YELLOW / DOTTED_WHITE 允许变道）
         │      │     ├── 标记 is_virtual（路口内无相邻 lane 的为 virtual）
         │      │     └── 计算节点代价（基于速度限制 + 转弯惩罚）
+        │      ├── 校验 U-turn 的最小转弯半径
         │      └── 记录 lane_id → node_index 映射
         │
         ├── 3. 遍历所有 lane，创建边：
         │      ├── FORWARD 边：successor lane 连接
-        │      ├── LEFT 边：左邻 lane 连接（需边界线允许穿越 + U-turn 半径校验）
+        │      ├── LEFT 边：左邻 lane 连接（需边界线允许穿越）
         │      └── RIGHT 边：右邻 lane 连接（同上）
         │      边代价由 edge_creator::GetPbEdge() 计算
         │
@@ -238,11 +239,11 @@ TopoGraph::LoadGraph()
                     │  1. Init()                                   │
                     │     ├── GetWayNodes(): 将 waypoint 映射到     │
                     │     │   TopoGraph 中的 TopoNode               │
-                    │     ├── BlackListRangeGenerator               │
-                    │     │   ::GenerateBlackMapFromRequest()       │
-                    │     └── AddBlackMapFromTerminal()             │
+                    │     └── BlackListRangeGenerator               │
+                    │         ::GenerateBlackMapFromRequest()       │
                     │                                              │
                     │  2. SearchRouteByStrategy()                   │
+                    │     ├── AddBlackMapFromTerminal()              │
                     │     ├── 构建 SubTopoGraph（裁剪黑名单区域）     │
                     │     ├── 对每对相邻 waypoint 执行 A* 搜索       │
                     │     └── MergeRoute() 合并分段结果              │
