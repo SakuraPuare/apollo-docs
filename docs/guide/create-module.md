@@ -264,6 +264,7 @@ module_config {
         config {
             name: "my_module"
             config_file_path: "/apollo/modules/my_module/conf/my_module_conf.pb.txt"
+            flag_file_path: "/apollo/modules/common/data/global_flagfile.txt"
             interval: 100
         }
     }
@@ -275,7 +276,8 @@ module_config {
 - `module_library`：指向 `apollo_component` 构建产物的路径（相对于 Apollo 工作空间根目录）
 - `class_name`：必须与 `CYBER_REGISTER_COMPONENT()` 注册的类名完全一致
 - `config_file_path`：protobuf text 格式的配置文件绝对路径
-- `interval`：仅 `TimerComponent` 使用，单位为毫秒。`100` 表示每 100ms 调用一次 `Proc()`
+- `flag_file_path`：可选，gflags 配置文件路径（如 `global_flagfile.txt`）
+- `interval`：仅 `TimerComponent` 使用，单位为毫秒。guardian 模块使用 `10`（10ms），storytelling 使用 `100`（100ms）
 
 如果使用消息驱动的 `Component<M0>`，DAG 配置略有不同：
 
