@@ -70,7 +70,7 @@ Control/Guardian 模块
 - **Proc()**：每个定时周期执行一次，检查控制指令超时、检测底盘通信故障、发布 `Chassis` 状态消息和 `ChassisDetail` 详情消息、更新心跳
 - **OnControlCommand()**：接收 `ControlCommand` 回调，做最小指令间隔过滤（默认 5ms），然后转发给车型工厂处理
 - **OnChassisCommand()**：接收外部底盘指令 `ChassisCommand`，用于自定义车辆操作
-- **ProcessGuardianCmdTimeout()**：指令超时时的紧急处理，将油门置零、制动设为 `estop_brake`（默认 30%）
+- **ProcessGuardianCmdTimeout()**：指令超时时的紧急处理，将油门置零、`steering_target` 置零、`steering_rate` 设为 25.0、制动设为 `estop_brake`（默认 30%）
 
 订阅的 Cyber RT 通道：
 
@@ -78,7 +78,7 @@ Control/Guardian 模块
 |------|---------|------|
 | `/apollo/control` | `ControlCommand` | 控制指令（非 Guardian 模式） |
 | `/apollo/guardian` | `GuardianCommand` | 守护指令（Guardian 模式） |
-| `/apollo/external_command/chassis` | `ChassisCommand` | 外部底盘指令 |
+| `/apollo/chassis_control` | `ChassisCommand` | 外部底盘指令 |
 
 发布的 Cyber RT 通道：
 
@@ -128,17 +128,24 @@ class AbstractVehicleFactory {
 
 | 方法 | 说明 |
 |------|------|
-| `Init()` | 初始化控制器，绑定 CanSender 和 MessageManager |
+| `Init()` | 初始化控制器，返回 `ErrorCode`，接受三个参数：`VehicleParameter`、`CanSender`、`MessageManager` |
 | `Start()` / `Stop()` | 启停控制器 |
 | `chassis()` | 读取底盘状态，组装 `Chassis` 消息 |
 | `Emergency()` | 紧急模式处理 |
 | `EnableAutoMode()` / `DisableAutoMode()` | 自动/手动模式切换 |
+| `EnableSteeringOnlyMode()` | 仅转向模式 |
+| `EnableSpeedOnlyMode()` | 仅速度模式 |
 | `Gear()` | 档位控制（P/R/N/D） |
 | `Brake()` | 制动踏板控制（0~100%） |
 | `Throttle()` | 油门踏板控制（0~100%） |
 | `Acceleration()` | 加速度控制（m/s^2） |
 | `Steer()` | 转向控制（角度/角速度） |
-| `SetBeam()` / `SetHorn()` / `SetTurningSignal()` | 灯光与喇叭控制 |
+| `Steer(double, double)` | 转向控制（带角速度的重载版本） |
+| `SetEpbBreak()` | 电子驻车制动控制 |
+| `HandleCustomOperation()` | 自定义操作处理 |
+| `SetBeam()` | 灯光控制 |
+| `SetHorn()` | 喇叭控制 |
+| `SetTurningSignal()` | 转向灯控制 |
 | `VerifyID()` | 车辆 VIN 码验证 |
 
 **基类已实现的关键方法：**
@@ -195,10 +202,12 @@ ch/
     ├── gear_command_114.h / .cc    # 发送协议：档位指令 (CAN ID 0x114)
     ├── turnsignal_command_113.h / .cc # 发送协议：转向灯指令 (CAN ID 0x113)
     ├── vehicle_mode_command_116.h / .cc # 发送协议：VIN 请求 (CAN ID 0x116)
+    ├── control_command_115.h / .cc # 发送协议：控制指令 (CAN ID 0x115)
     ├── throttle_status__510.h / .cc# 接收协议：油门状态 (CAN ID 0x510)
     ├── brake_status__511.h / .cc   # 接收协议：制动状态 (CAN ID 0x511)
     ├── steer_status__512.h / .cc   # 接收协议：转向状态 (CAN ID 0x512)
     ├── gear_status_514.h / .cc     # 接收协议：档位状态 (CAN ID 0x514)
+    ├── turnsignal_status__513.h / .cc # 接收协议：转向灯状态 (CAN ID 0x513)
     ├── ecu_status_1_515.h / .cc    # 接收协议：ECU 状态（速度/加速度/控制状态）
     ├── ecu_status_2_516.h / .cc    # 接收协议：电池 BMS 状态
     ├── ecu_status_3_517.h / .cc    # 接收协议：超声波 1~8
@@ -330,7 +339,7 @@ CanbusComponent::Proc() (100Hz 定时触发)
 1. **指令超时检测**：`Proc()` 中检查控制指令时间戳，超过阈值（默认 `max_control_miss_num * control_period = 5 * 10ms = 50ms`）触发紧急制动
 2. **通信故障检测**：`CheckChassisCommunicationError()` 连续 100 次（约 1 秒）未收到有效底盘数据则判定通信故障，进入 `EMERGENCY_MODE`
 3. **SecurityDog 线程**：各车型 Controller 内部运行看门狗线程（50ms 周期），检测转向和速度控制响应，发现人工接管或底盘故障时自动切换到紧急模式
-4. **紧急制动处理**：超时时将油门置零、转向置零、制动设为 `estop_brake`（默认 30%）
+4. **紧急制动处理**：超时时将油门置零、`steering_target` 置零、`steering_rate` 设为 25.0、制动设为 `estop_brake`（默认 30%）
 
 ## 配置方式
 
@@ -339,19 +348,22 @@ CanbusComponent::Proc() (100Hz 定时触发)
 定义在 `modules/canbus/proto/canbus_conf.proto`：
 
 ```protobuf
+// canbus_conf.proto
 message CanbusConf {
-  optional VehicleParameter vehicle_parameter = 1;
+  // VehicleParameter 来自 vehicle_parameter.proto（通过 import 引入）
+  optional apollo.common.VehicleParameter vehicle_parameter = 1;
   optional CANCardParameter can_card_parameter = 2;
   optional bool enable_debug_mode = 3 [default = false];
   optional bool enable_receiver_log = 4 [default = false];
   optional bool enable_sender_log = 5 [default = false];
 }
 
+// vehicle_parameter.proto
 message VehicleParameter {
-  optional VehicleBrand brand = 1;
+  optional apollo.common.VehicleBrand brand = 1;
   optional double max_engine_pedal = 2;
   optional int32 max_enable_fail_attempt = 3;
-  optional DrivingMode driving_mode = 4;
+  optional Chassis.DrivingMode driving_mode = 4;
 }
 ```
 
