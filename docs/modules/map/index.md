@@ -92,6 +92,7 @@ class ObjectWithAABox {
   AABox2d aabox_;           // 轴对齐包围盒
   const Object* object_;    // 地图元素指针
   const GeoObject* geo_object_;  // 几何对象指针（LineSegment2d 或 Polygon2d）
+  int id_;                  // 对象标识符
   // 提供 DistanceTo / DistanceSquareTo 用于 KD-Tree 查询
 };
 ```
@@ -116,7 +117,7 @@ class LaneInfo {
 
 ### PnC Map 层
 
-**`PncMapBase`**（`pnc_map/pnc_map_base.h`）是规划导航地图的抽象基类：
+**`PncMapBase`**（`pnc_map/pnc_map_base.h`）是规划导航地图的抽象基类，位于 `apollo::planning` 命名空间：
 
 ```cpp
 class PncMapBase {
@@ -152,9 +153,10 @@ struct LaneSegment {
   double start_s, end_s;  // 车道上的起止弧长
 };
 
-struct MapPathPoint : public Vec2d {
-  double heading;                              // 航向角
-  std::vector<LaneWaypoint> lane_waypoints;    // 该点对应的车道位置
+class MapPathPoint : public Vec2d {
+  double heading_;                              // 航向角（通过 heading() 访问）
+  std::vector<LaneWaypoint> lane_waypoints_;    // 该点对应的车道位置（通过 lane_waypoints() 访问）
+  // 成员变量通过 getter/setter 方法访问
 };
 ```
 
@@ -221,6 +223,7 @@ apollo::hdmap::Map（Protobuf 消息）
 ```cpp
 struct RoadInternal {
   std::string id;
+  std::string type;
   PbRoad road;
   bool in_junction;
   std::string junction_id;
@@ -228,6 +231,7 @@ struct RoadInternal {
   std::vector<TrafficLightInternal> traffic_lights;
   std::vector<StopSignInternal> stop_signs;
   std::vector<YieldSignInternal> yield_signs;
+  std::vector<StopLineInternal> stop_lines;
   std::vector<PbCrosswalk> crosswalks;
   std::vector<PbClearArea> clear_areas;
   std::vector<PbSpeedBump> speed_bumps;
@@ -255,6 +259,7 @@ message Map {
   repeated Lane lane = 4;           // 车道
   repeated StopSign stop_sign = 5;  // 停车标志
   repeated Signal signal = 6;       // 交通信号灯
+  repeated YieldSign yield = 7;     // 让行标志
   repeated Overlap overlap = 8;     // 元素重叠关系
   repeated ClearArea clear_area = 9;
   repeated SpeedBump speed_bump = 10;
@@ -460,7 +465,7 @@ const HDMap* HDMapUtil::BaseMapPtr() {
 
 ```
 输入 Cyber 话题：
-  /apollo/perception_obstacles  ──┐
+  /apollo/perception/obstacles  ──┐
   /apollo/canbus/chassis        ──┤
   /apollo/localization/pose     ──┤  RelativeMapComponent (100ms 周期)
   /apollo/navigation            ──┘
@@ -480,7 +485,7 @@ const HDMap* HDMapUtil::BaseMapPtr() {
 
 | 方向 | 话题 | 消息类型 | 说明 |
 |------|------|---------|------|
-| 输入 | `/apollo/perception_obstacles` | `PerceptionObstacles` | 感知障碍物及车道标记 |
+| 输入 | `/apollo/perception/obstacles` | `PerceptionObstacles` | 感知障碍物及车道标记 |
 | 输入 | `/apollo/canbus/chassis` | `Chassis` | 底盘信息（车速等） |
 | 输入 | `/apollo/localization/pose` | `LocalizationEstimate` | 车辆定位 |
 | 输入 | `/apollo/navigation` | `NavigationInfo` | 导航路线信息 |
@@ -522,9 +527,9 @@ Routing 模块输出
 | Flag | 默认值 | 说明 |
 |------|--------|------|
 | `FLAGS_map_dir` | -- | 地图数据目录路径 |
-| `FLAGS_base_map_filename` | `base_map.xml\|base_map.bin\|base_map.txt` | 基础地图文件名（支持 `\|` 分隔的候选列表） |
-| `FLAGS_sim_map_filename` | `sim_map.bin` | 仿真地图文件名 |
-| `FLAGS_routing_map_filename` | `routing_map.bin` | 路由地图文件名 |
+| `FLAGS_base_map_filename` | `base_map.bin\|base_map.xml\|base_map.txt` | 基础地图文件名（支持 `\|` 分隔的候选列表） |
+| `FLAGS_sim_map_filename` | `sim_map.bin\|sim_map.txt` | 仿真地图文件名 |
+| `FLAGS_routing_map_filename` | `routing_map.bin\|routing_map.txt` | 路由地图文件名 |
 | `FLAGS_end_way_point_filename` | `default_end_way_point.txt` | 默认终点文件 |
 | `FLAGS_use_navigation_mode` | `false` | 是否启用导航模式（使用 Relative Map） |
 | `FLAGS_test_base_map_filename` | `""` | 测试用地图文件名（非空时覆盖 base_map_filename） |
