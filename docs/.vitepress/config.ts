@@ -7,14 +7,18 @@ import {
   GitChangelogMarkdownSection,
 } from '@nolebase/vitepress-plugin-git-changelog/vite'
 
+/** GitHub Pages: https://<user>.github.io/<repo>/ */
+const base = '/apollo-docs/'
+
 export default withMermaid(defineConfig({
+  base,
   title: 'Apollo Docs',
   description: 'Apollo 自动驾驶平台技术文档',
   lang: 'zh-CN',
   lastUpdated: true,
 
   head: [
-    ['link', { rel: 'icon', href: '/favicon.ico' }],
+    ['link', { rel: 'icon', href: `${base}favicon.ico` }],
   ],
 
   markdown: {
