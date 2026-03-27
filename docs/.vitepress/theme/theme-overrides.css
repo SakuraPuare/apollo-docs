@@ -1,0 +1,119 @@
+.medium-zoom-overlay {
+  backdrop-filter: blur(5rem);
+}
+
+.medium-zoom-overlay,
+.medium-zoom-image--opened {
+  z-index: 999;
+}
+
+/*
+ * 顶栏 logo：资源为纯黑 PNG，夜间模式反色为浅色，随 html.dark 与系统自动主题一致
+ */
+.dark .VPNavBarTitle img.logo {
+  filter: invert(1);
+}
+
+/*
+ * 首页 Hero：logo 外轮廓辉光（偏蓝，多层 drop-shadow）
+ * 日间：浅色背景上用略克制的饱和蓝，避免发灰
+ * 夜间：纯黑 logo 先 invert，再叠蓝色辉光，与暗色背景对比
+ */
+.VPHome .VPHero.has-image .image-container img {
+  filter:
+    drop-shadow(0 0 5px rgba(29, 78, 216, 0.55))
+    drop-shadow(0 0 16px rgba(37, 99, 235, 0.48))
+    drop-shadow(0 0 32px rgba(59, 130, 246, 0.38))
+    drop-shadow(0 0 52px rgba(14, 165, 233, 0.22));
+}
+
+.dark .VPHome .VPHero.has-image .image-container img {
+  filter:
+    invert(1)
+    drop-shadow(0 0 6px rgba(96, 165, 250, 0.85))
+    drop-shadow(0 0 22px rgba(59, 130, 246, 0.65))
+    drop-shadow(0 0 42px rgba(56, 189, 248, 0.5))
+    drop-shadow(0 0 72px rgba(125, 211, 252, 0.32));
+}
+
+/* 首页 Hero 主标题：Apollo — 高饱和蓝青渐变 + 轻外发光 */
+.VPHome .VPHero .name.clip {
+  background-image: linear-gradient(
+    125deg,
+    #172554 0%,
+    #1d4ed8 38%,
+    #0284c7 78%,
+    #0ea5e9 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 3px 18px rgba(37, 99, 235, 0.28))
+    drop-shadow(0 6px 32px rgba(14, 165, 233, 0.15));
+}
+
+.dark .VPHome .VPHero .name.clip {
+  background-image: linear-gradient(
+    125deg,
+    #bfdbfe 0%,
+    #60a5fa 40%,
+    #38bdf8 85%,
+    #a5f3fc 100%
+  );
+  filter: drop-shadow(0 3px 22px rgba(96, 165, 250, 0.38))
+    drop-shadow(0 8px 40px rgba(56, 189, 248, 0.22));
+}
+
+/* 副标题行：自动驾驶开放平台 — 略沉稳的蓝灰渐变，与上行区分层次 */
+.VPHome .VPHero .heading .text {
+  background-image: linear-gradient(
+    95deg,
+    #0f172a 0%,
+    #1e3a8a 35%,
+    #1d4ed8 70%,
+    #0369a1 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 14px rgba(30, 58, 138, 0.12));
+}
+
+.dark .VPHome .VPHero .heading .text {
+  background-image: linear-gradient(
+    95deg,
+    #f1f5f9 0%,
+    #93c5fd 42%,
+    #7dd3fc 100%
+  );
+  filter: drop-shadow(0 2px 18px rgba(125, 211, 252, 0.18));
+}
+
+/* 页脚：署名与声明（与 Hero 蓝青体系呼应） */
+.VPFooter {
+  border-top: 1px solid color-mix(in srgb, var(--vp-c-brand-1) 18%, var(--vp-c-gutter));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--vp-c-bg) 100%, var(--vp-c-brand-1) 2%) 0%,
+    var(--vp-c-bg) 48%
+  );
+}
+
+.VPFooter .container {
+  max-width: 56rem;
+}
+
+.VPFooter .apollo-footer-byline {
+  display: block;
+  max-width: 42rem;
+  margin: 0 auto;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--vp-c-text-2);
+}
+
+.VPFooter .copyright {
+  margin-top: 0.25rem;
+  font-size: 13px;
+}
