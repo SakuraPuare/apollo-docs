@@ -80,6 +80,7 @@ class Monitor : public apollo::cyber::TimerComponent {
 class RecurrentRunner {
  public:
   RecurrentRunner(const std::string &name, const double interval);
+  virtual ~RecurrentRunner() = default;
   void Tick(const double current_time);
   virtual void RunOnce(const double current_time) = 0;
  protected:
@@ -232,7 +233,7 @@ FATAL > ERROR > WARN > OK > UNKNOWN
 - **必填字段** — 递归验证 protobuf 消息中配置的 `mandatory_fields` 是否存在
 - **消息频率** — 从 `LatencyMonitor` 获取频率，超出 `[min_frequency_allowed, max_frequency_allowed]` 范围报 `WARN`
 
-支持的通道类型包括：`ControlCommand`、`LocalizationEstimate`、`PerceptionObstacles`、`PredictionObstacles`、`ADCTrajectory`、`PointCloud`（多种型号）、`ChassisDetail`、`ContiRadar`、`NavigationInfo` 等。
+支持的通道类型包括：`ControlCommand`、`LocalizationEstimate`、`PerceptionObstacles`、`PredictionObstacles`、`ADCTrajectory`、`PointCloud`（多种型号）、`ChassisDetail`、`ContiRadar`、`MapMsg`（relative_map）等。
 
 #### LatencyMonitor
 
@@ -284,6 +285,8 @@ FATAL > ERROR > WARN > OK > UNKNOWN
 
 #### RecorderMonitor
 
+> **注意**：`RecorderMonitor` 的头文件虽被 `monitor.cc` 引入，但当前版本中并未实例化注册到 `runners_` 中，因此实际运行时不会执行。以下为其设计逻辑的说明。
+
 监控智能录制器（SmartRecorder）的运行状态。订阅 `SmartRecorderStatus` 消息。
 
 | RecordingState | ComponentStatus |
@@ -298,7 +301,7 @@ FATAL > ERROR > WARN > OK > UNKNOWN
 
 汇总监控器，每帧都执行（interval = 0）。负责：
 
-1. 遍历所有 `components` 和 `global_components`，将各维度状态（`process_status`、`module_status`、`channel_status`、`resource_status`、`other_status`）按优先级升级合并为 `summary`
+1. 遍历所有 `components` 和 `global_components`，将各维度状态（`process_status`、`module_status`、`channel_status`、`resource_status`、`other_status`）按优先级升级合并为 `summary`。其中 `global_components` 仅合并 `process_status` 和 `resource_status` 两个维度，而非全部五个维度
 2. 对 `SystemStatus` 进行序列化哈希，仅在状态变化或超过 1 秒未发布时，通过 `FLAGS_system_status_topic` 发布
 
 #### FunctionalSafetyMonitor
@@ -318,8 +321,9 @@ CheckSafety()
 
 不安全时的处理时序：
 
-1. 首次检测到不安全 → 设置 `passenger_msg = "Error! Please disengage."`，记录 `safety_mode_trigger_time`
-2. 持续不安全且超过 `FLAGS_safety_mode_seconds_before_estop`（默认 10 秒）→ 设置 `require_emergency_stop = true`，触发紧急停车
+1. 首次检测到不安全 → 记录 `safety_mode_trigger_time`
+2. 每帧持续不安全时 → 设置 `passenger_msg = "Error! Please disengage."`（每帧都会设置，而非仅首次）
+3. 持续不安全且超过 `FLAGS_safety_mode_seconds_before_estop`（默认 10 秒）→ 设置 `require_emergency_stop = true`，触发紧急停车
 3. 恢复安全 → 清除所有安全模式标志
 
 ## 数据流
@@ -509,7 +513,11 @@ Monitor 模块采用分层检查架构：
 // 优先级: FATAL > ERROR > WARN > OK > UNKNOWN
 if (new_status > current_status->status()) {
     current_status->set_status(new_status);
-    current_status->set_message(message);
+    if (!message.empty()) {
+      current_status->set_message(message);
+    } else {
+      current_status->clear_message();
+    }
 }
 ```
 
