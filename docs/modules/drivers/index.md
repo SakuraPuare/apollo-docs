@@ -158,7 +158,7 @@ USB 摄像头 (V4L2)
             → 发布 CompressedImage
 ```
 
-`UsbCam` 类封装了 Linux V4L2 设备操作，支持 YUYV、MJPEG、RGB24 等像素格式，内部使用 FFmpeg (libavcodec/libswscale) 进行 MJPEG 解码和颜色空间转换。在 ARM (aarch64) 平台上支持 CUDA 加速和 NvJPEG 硬件编码。
+`UsbCam` 类封装了 Linux V4L2 设备操作，支持 YUYV、MJPEG、RGB24 等像素格式，内部使用 FFmpeg (libavcodec/libswscale) 进行 MJPEG 解码和颜色空间转换。在 ARM (aarch64) 平台上支持 CUDA 加速颜色空间转换。`CompressComponent` 在 aarch64 平台上使用 NvJPEG 硬件编码器进行图像压缩。
 
 ### LiDAR 激光雷达驱动
 
@@ -401,7 +401,7 @@ message Config {
 
 ## 关键 Protobuf 消息类型
 
-驱动模块输出的核心消息定义在 `modules/common_msgs/sensor_msgs/` 中：
+驱动模块输出的核心消息大部分定义在 `modules/common_msgs/sensor_msgs/` 中，少数定义在其他位置：
 
 | 消息类型 | 说明 | 典型 Channel |
 |---------|------|-------------|
@@ -412,5 +412,5 @@ message Config {
 | `OculiiPointCloud` | Oculii 4D 雷达点云 | `/apollo/sensor/oculii_radar` |
 | `Gnss` | GNSS 定位 | `/apollo/sensor/gnss/odometry` |
 | `Imu` | IMU 数据 | `/apollo/sensor/gnss/imu` |
-| `CorrectedImu` | 校正后 IMU | `/apollo/sensor/gnss/corrected_imu` |
-| `AudioData` | 音频数据 | `/apollo/sensor/microphone` |
+| `CorrectedImu` | 校正后 IMU（定义在 `localization_msgs/imu.proto`） | `/apollo/sensor/gnss/corrected_imu` |
+| `AudioData` | 音频数据（定义在 `drivers/microphone/proto/audio.proto`） | `/apollo/sensor/microphone` |
