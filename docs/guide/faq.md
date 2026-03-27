@@ -4,440 +4,699 @@ title: 常见问题 FAQ
 
 # 常见问题 FAQ
 
-## Q1: Apollo 配置中心是什么？它解决了什么问题？
+## Q1: 什么是 Apollo？它能做什么？
 
-Apollo（阿波罗）是携程开源的分布式配置管理中心，能够集中化管理应用在不同环境、不同集群的配置。核心能力包括：
+Apollo（阿波罗）是百度开源的自动驾驶平台，旨在为开发者提供一套高性能、灵活的自动驾驶软件框架，加速自动驾驶车辆的开发、测试和部署。
 
-- 配置修改后实时推送到应用端（默认 1 秒内生效）
-- 支持多环境（DEV / FAT / UAT / PRO）、多集群、多命名空间的配置隔离
-- 提供规范的权限管理、灰度发布、版本回滚机制
-- 提供 Java / .NET 原生客户端，同时支持 HTTP 接口对接任意语言
+Apollo 的核心能力包括：
 
-如果你的项目面临以下痛点，Apollo 是一个合适的选择：
-- 配置散落在各个服务的本地文件中，修改后需要重新部署
-- 多环境配置管理混乱，容易出现配置错漏
-- 缺少配置变更审计和回滚能力
+- **感知（Perception）**：融合 LiDAR、Camera、Radar 等多传感器数据，实现障碍物检测、车道线识别、交通信号灯识别等
+- **预测（Prediction）**：预测周围交通参与者的未来轨迹和行为意图
+- **规划（Planning）**：基于场景化的路径和速度规划，支持变道、掉头、无保护转弯等复杂场景
+- **控制（Control）**：通过线控系统精准控制车辆的转向、油门和制动
+- **高精地图（HD Map）**：提供厘米级精度的高精地图服务
+- **定位（Localization）**：融合 GNSS/IMU 和 LiDAR 点云匹配实现高精度定位
+- **仿真（Simulation）**：通过 Dreamview 和 Dreamview Plus 提供可视化和仿真调试工具
 
-## Q2: Apollo 的核心架构由哪些组件构成？
+Apollo 从 1.0 版本逐步发展到 11.0 版本，已覆盖从封闭园区到复杂城市道路的多种自动驾驶场景。
 
-Apollo 包含四个核心组件：
+## Q2: Apollo 支持哪些硬件平台？系统要求是什么？
 
-| 组件 | 职责 | 默认端口 |
-|------|------|----------|
-| Config Service | 提供配置读取和实时推送接口，服务于客户端 | 8080 |
-| Admin Service | 提供配置修改和发布接口，服务于 Portal | 8090 |
-| Portal | Web 管理界面 | 8070 |
-| Meta Server | 服务发现，客户端通过它找到 Config Service 地址 | 与 Config Service 同进程 |
+**最低硬件要求：**
 
-每个环境（如 DEV、PRO）需要独立部署一套 Config Service + Admin Service + 对应的数据库（ApolloConfigDB）。Portal 只需部署一套，通过 ApolloPortalDB 管理所有环境。
+- CPU：8 核处理器
+- 内存：16GB RAM（推荐 32GB 以上）
+- GPU：NVIDIA Turing 架构及以上（如 RTX 20/30/40 系列），或 AMD GFX9/RDNA/CDNA 架构
+- 磁盘：建议 200GB 以上可用空间（Docker 镜像 + 编译缓存较大）
 
-## Q3: 如何选择部署模式——Quick Start 单机模式还是分布式部署？
+**支持的操作系统：**
 
-**Quick Start（单机模式）** 适用于：
-- 本地开发和功能验证
-- 快速体验 Apollo 功能
-- 使用内嵌的 H2 数据库，无需额外安装 MySQL
+- Ubuntu 18.04
+- Ubuntu 20.04
+- Ubuntu 22.04
+
+**GPU 驱动要求：**
+
+- NVIDIA 驱动版本 >= 520.61.05（CUDA 11.8）
+- 或 AMD ROCm v5.1 及以上
+
+**CPU 架构支持：**
+
+- x86_64（主要开发平台）
+- aarch64 / ARM64（Apollo 9.0+ 支持在 NVIDIA Orin 等 ARM 平台上编译运行）
+
+**实车部署额外硬件：**
+
+- 线控车辆（brake-by-wire、steering-by-wire、throttle-by-wire、shift-by-wire），Apollo 主要在 Lincoln MKZ 上测试
+- LiDAR（如 Velodyne HDL-64E S3、Hesai 等）
+- 摄像头（支持多种工业相机）
+- 毫米波雷达（Apollo 9.0+ 支持 4D 毫米波雷达）
+- GNSS/IMU 组合惯导（如 NovAtel SPAN）
+
+## Q3: 如何搭建 Apollo 开发环境？Docker 还是本地编译？
+
+**推荐方式：Docker 容器开发环境。** Apollo 官方维护了预构建的 Docker 镜像，包含所有依赖库，避免环境配置问题。
+
+**Docker 环境搭建步骤：**
+
+1. 安装 Docker-CE 19.03+：
 
 ```bash
-# Quick Start 一键启动
-./demo.sh start
+# 参考 Docker 官方安装文档
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io
 ```
 
-**分布式部署** 适用于：
-- 测试环境和生产环境
-- 需要高可用和水平扩展
-- 使用 MySQL 作为持久化存储
+2. 安装 NVIDIA Container Toolkit（GPU 支持）：
 
-分布式部署推荐使用 Docker Compose 或 Kubernetes Helm Chart。生产环境建议 Config Service 和 Admin Service 各部署至少 2 个实例。
-
-## Q4: 数据库初始化和连接配置有哪些常见问题？
-
-Apollo 需要两个数据库：`ApolloConfigDB`（每个环境一个）和 `ApolloPortalDB`（全局一个）。
-
-常见问题及解决方案：
-
-**数据库连接失败**
-
-检查 `application-github.properties` 中的数据库连接配置：
-
-```properties
-spring.datasource.url = jdbc:mysql://localhost:3306/ApolloConfigDB?characterEncoding=utf8
-spring.datasource.username = root
-spring.datasource.password = your_password
+```bash
+# 参考 NVIDIA 官方文档安装 nvidia-docker
 ```
 
-注意事项：
-- MySQL 版本建议 5.7+，也支持 8.0（需注意驱动兼容性）
-- 确保数据库字符集为 `utf8mb4`
-- 如果 MySQL 部署在远程服务器，确认防火墙放行了 3306 端口
-- 使用 Docker 部署时，数据库地址不能写 `localhost`，应使用宿主机 IP 或容器网络地址
+3. 克隆 Apollo 代码：
 
-**SQL 脚本导入失败**
-
-确保按顺序执行初始化脚本：
-1. 先执行 `apolloconfigdb.sql` 创建 ConfigDB
-2. 再执行 `apolloportaldb.sql` 创建 PortalDB
-3. 检查 `ServerConfig` 表中的 `eureka.service.url` 配置是否正确
-
-## Q5: 启动时报 Eureka 注册失败或服务发现异常怎么办？
-
-Apollo 使用内嵌的 Eureka 做服务注册与发现。Config Service 自身既是 Eureka Server 也是 Eureka Client。
-
-**常见错误：`Connection refused` 或 `Cannot execute request on any known server`**
-
-排查步骤：
-1. 检查 `ApolloConfigDB` 的 `ServerConfig` 表中 `eureka.service.url` 的值：
-   ```sql
-   SELECT * FROM ServerConfig WHERE `Key` = 'eureka.service.url';
-   ```
-   该值应指向 Config Service 实际可访问的地址，例如 `http://192.168.1.100:8080/eureka/`
-
-2. 如果部署了多个 Config Service 实例，用逗号分隔多个地址：
-   ```
-   http://host1:8080/eureka/,http://host2:8080/eureka/
-   ```
-
-3. 不要使用 `localhost` 或 `127.0.0.1`，除非是单机部署
-
-4. 确认 Config Service 进程已正常启动，端口 8080 可访问
-
-**Docker / Kubernetes 环境下的特殊注意事项：**
-- 容器内的 hostname 可能无法被其他容器解析，建议配置 `apollo.config-service.url` 为可路由的地址
-- K8s 中建议使用 Service 名称作为地址
-
-## Q6: 客户端如何连接 Apollo？Meta Server 地址怎么配？
-
-Java 客户端连接 Apollo 需要配置 Meta Server 地址。Meta Server 本质上就是 Config Service 的地址。
-
-**配置方式（优先级从高到低）：**
-
-1. Java System Property：`-Dapollo.meta=http://config-service-host:8080`
-2. 环境变量：`APOLLO_META=http://config-service-host:8080`
-3. `server.properties` 文件（位于 classpath 下）
-4. `apollo-env.properties` 文件中按环境配置：
-   ```properties
-   dev.meta=http://dev-config-service:8080
-   fat.meta=http://fat-config-service:8080
-   uat.meta=http://uat-config-service:8080
-   pro.meta=http://pro-config-service:8080
-   ```
-5. `app.properties` 中的 `apollo.meta`
-
-**Spring Boot 项目推荐配置方式：**
-
-在 `application.yml` 或启动参数中指定：
-```yaml
-apollo:
-  meta: http://config-service-host:8080
-  bootstrap:
-    enabled: true
-    namespaces: application,common
+```bash
+git clone https://github.com/ApolloAuto/apollo.git
+cd apollo
 ```
 
-如果客户端启动时报 `No available config service`，通常是 Meta Server 地址配置错误或 Config Service 未启动。
+4. 启动开发容器：
 
-## Q7: Namespace（命名空间）应该如何规划和使用？
+```bash
+bash docker/scripts/dev_start.sh
+```
 
-Namespace 是 Apollo 中配置隔离的核心概念，类似于配置文件的分组。
+5. 进入容器：
 
-**推荐实践：**
+```bash
+bash docker/scripts/dev_into.sh
+```
 
-- `application`：每个应用的私有命名空间，存放应用专属配置（默认自动创建）
-- 公共命名空间：存放多个应用共享的配置，如中间件连接信息、通用开关等
-- 按关注点分离：如 `datasource`、`redis`、`mq` 等独立命名空间
+6. 在容器内编译：
 
-**Namespace 类型：**
+```bash
+bash apollo.sh build
+```
 
-| 类型 | 说明 |
-|------|------|
-| private | 应用私有，仅当前应用可见 |
-| public | 公共命名空间，所有应用可关联使用 |
-| associate | 关联命名空间，应用关联公共命名空间后可覆盖部分配置 |
+**关于本地编译：** 虽然理论上可以在宿主机直接编译，但由于 Apollo 依赖链极其庞大（包括 CUDA、PCL、OpenCV、Protobuf、Eigen 等数十个库），不推荐本地编译。Docker 方式可以确保一致的编译环境。
+
+**Apollo 9.0+ 包管理方式：** 从 Apollo 9.0 开始引入了包管理工具，支持以 Package 方式安装和使用各功能模块，降低了二次开发门槛。
+
+## Q4: CyberRT 是什么？它和 ROS 有什么区别？
+
+CyberRT 是 Apollo 自研的高性能运行时通信框架，从 Apollo 3.5 版本开始取代 ROS 成为 Apollo 的底层通信中间件。
+
+**CyberRT 的核心特性：**
+
+- **高性能通信**：基于共享内存的进程间通信，降低数据拷贝开销
+- **确定性调度**：支持协程（Coroutine）调度，可配置调度策略，满足自动驾驶实时性要求
+- **组件化架构**：通过 Component 机制组织算法模块，每个 Component 处理输入数据并产生输出
+- **丰富的开发工具**：提供 `cyber_monitor`、`cyber_recorder`、`cyber_channel`、`cyber_node`、`cyber_launch` 等命令行工具
+- **Python API 支持**：提供 Python 接口用于快速原型开发和脚本编写
+
+**CyberRT 与 ROS 的主要区别：**
+
+| 对比维度 | CyberRT | ROS |
+|----------|---------|-----|
+| 通信机制 | 共享内存 + 进程内通信 | 基于 TCP/UDP 的话题通信 |
+| 调度 | 协程调度，支持确定性调度策略 | 基于回调的线程模型 |
+| 实时性 | 针对自动驾驶优化，延迟更低 | 通用设计，实时性较弱 |
+| 序列化 | Protobuf | 自定义 msg 格式 |
+| 服务发现 | 自研的 Topology Manager | ROS Master |
+| 数据录制 | cyber_recorder（Record 格式） | rosbag |
+
+**CyberRT 核心概念：**
+
+- **Node**：通信的基本单元，类似 ROS 中的 Node
+- **Channel**：数据通信的通道，类似 ROS 中的 Topic
+- **Component**：封装算法逻辑的组件，由框架调度执行
+- **DAG（有向无环图）**：描述 Component 的依赖关系和数据流
+- **Launch 文件**：启动配置文件，定义要加载的 DAG 和进程信息
+
+## Q5: 如何创建自定义模块/Component？
+
+创建一个 CyberRT Component 需要以下步骤：
+
+**1. 创建目录结构：**
+
+```
+my_component/
+├── my_component.h        # 头文件
+├── my_component.cc       # 源文件
+├── BUILD                 # Bazel 构建文件
+├── my_component.dag      # DAG 配置
+└── my_component.launch   # Launch 启动文件
+```
+
+**2. 实现 Component 类（头文件）：**
+
+```cpp
+#include "cyber/component/component.h"
+#include "my_component/proto/my_message.pb.h"
+
+using apollo::cyber::Component;
+
+class MyComponent : public Component<MyInputMsg> {
+ public:
+  bool Init() override;
+  bool Proc(const std::shared_ptr<MyInputMsg>& msg) override;
+};
+CYBER_REGISTER_COMPONENT(MyComponent)
+```
+
+**3. 实现 Init 和 Proc 函数（源文件）：**
+
+- `Init()`：初始化时调用一次，用于加载配置、初始化资源
+- `Proc()`：每次收到输入数据时被框架调度调用
+
+**4. 配置 DAG 文件：**
+
+```protobuf
+module_config {
+  module_library : "/apollo/bazel-bin/my_component/libmy_component.so"
+  components {
+    class_name : "MyComponent"
+    config {
+      name : "my_component"
+      readers {
+        channel: "/apollo/my_input_channel"
+      }
+    }
+  }
+}
+```
+
+**5. 配置 Launch 文件：**
+
+```xml
+<cyber>
+    <component>
+        <name>my_component</name>
+        <dag_conf>/apollo/my_component/my_component.dag</dag_conf>
+        <process_name>my_component</process_name>
+    </component>
+</cyber>
+```
+
+**6. 编译与运行：**
+
+```bash
+# 编译
+bash apollo.sh build
+
+# 配置环境
+source cyber/setup.bash
+
+# 启动（二选一）
+cyber_launch start my_component/my_component.launch
+# 或
+mainboard -d my_component/my_component.dag
+```
+
+除了标准 Component（数据触发），CyberRT 还支持 TimerComponent（定时触发），适用于不依赖外部消息、按固定频率执行的算法模块。
+
+## Q6: Dreamview 是什么？如何使用？
+
+Dreamview 是 Apollo 的可视化与仿真调试工具，提供基于 Web 的图形界面，用于查看车辆状态、传感器数据、规划轨迹等信息。
+
+**Dreamview 版本：**
+
+- **Dreamview（经典版）**：Apollo 早期版本提供的可视化工具，默认端口 8888
+- **Dreamview Plus（新版）**：Apollo 9.0 引入的全新开发者工具，提供模式切换、面板自定义布局、资源中心等增强功能
+
+**Dreamview 的主要功能：**
+
+- **可视化显示**：实时显示车辆位置、障碍物、规划轨迹、车道线、交通信号灯等
+- **模块管理**：启动/停止各个功能模块（感知、规划、控制等）
+- **仿真调试**：在 Apollo 8.0+ 集成了本地仿真器，支持 PnC（Planning and Control）开发者直接在 Dreamview 中进行仿真调试
+- **数据回放**：加载 Record 文件进行离线数据回放和分析
+- **车辆配置**：选择和切换车辆配置、地图等
+
+**启动 Dreamview：**
+
+```bash
+# 在 Apollo Docker 容器内
+bash scripts/bootstrap.sh
+```
+
+启动后在浏览器访问 `http://localhost:8888` 即可打开 Dreamview。如果从远程主机访问，需将 `localhost` 替换为 Apollo 主机的实际 IP 地址。
 
 **常见问题：**
 
-- 公共命名空间的名称全局唯一，建议加部门或模块前缀，如 `infra.datasource`
-- 关联公共命名空间后，应用可以覆盖其中的配置项，覆盖仅对当前应用生效
-- 命名空间支持 `properties`、`xml`、`json`、`yaml` 等格式，非 properties 格式的命名空间整体作为一个配置项
+- 无法访问页面：检查 Dreamview 进程是否正常运行（`ps aux | grep dreamview`）
+- 页面空白：确认编译成功，且 `bootstrap.sh` 执行无报错
+- 远程访问被拒：检查防火墙是否放行 8888 端口
 
-## Q8: 如何管理多环境（DEV / FAT / UAT / PRO）？
+## Q7: Apollo 如何处理传感器数据（LiDAR、Camera、Radar）？
 
-Apollo 内置支持四种环境：DEV（开发）、FAT（功能测试）、UAT（验收测试）、PRO（生产）。
+Apollo 的感知模块（Perception）采用多传感器融合架构处理各类传感器数据：
 
-**环境配置步骤：**
+**LiDAR 处理流程：**
 
-1. 在 `ApolloPortalDB` 的 `ServerConfig` 表中设置 `apollo.portal.envs`：
-   ```sql
-   UPDATE ServerConfig SET `Value` = 'dev,fat,uat,pro' WHERE `Key` = 'apollo.portal.envs';
-   ```
+1. 驱动层通过 CyberRT Channel 发布原始点云数据
+2. 点云预处理：地面检测（`pointcloud_ground_detection`）、ROI 过滤（`pointcloud_map_based_roi`）
+3. 目标检测：支持多种检测模型，包括 `lidar_detection`、`lidar_cpdet_detection`、`lidar_segmentation` 等
+4. 目标跟踪：`lidar_tracking` 模块对检测结果进行多帧关联和跟踪
 
-2. 每个环境部署独立的 Config Service + Admin Service + ApolloConfigDB
+**Camera 处理流程：**
 
-3. 在 Portal 的 `apollo-env.properties` 中配置各环境的 Meta Server 地址
+1. 驱动层发布图像数据
+2. 目标检测：支持单阶段（`camera_detection_single_stage`）和多阶段（`camera_detection_multi_stage`）检测
+3. Apollo 9.0+ 新增 BEV（Bird's Eye View）视角检测（`camera_detection_bev`）和 Occupancy 检测（`camera_detection_occupancy`）
+4. 位置估计和精细化：`camera_location_estimation` 和 `camera_location_refinement`
+5. 目标跟踪：`camera_tracking`
 
-**自定义环境：**
+**Radar 处理流程：**
 
-如果内置的四个环境不够用，可以通过以下方式扩展：
-- 利用集群（Cluster）功能在同一环境下做进一步隔离
-- 2.0.0+ 版本支持自定义环境，通过修改 `com.ctrip.framework.apollo.core.enums.Env` 枚举实现
+- 毫米波雷达数据通过 `third_party_perception` 模块或直接融合处理
+- Apollo 9.0+ 新增对 4D 毫米波雷达的支持
 
-**常见误区：**
-- 不同环境的 ApolloConfigDB 必须是独立的数据库实例（或至少是独立的 schema），不能共用
-- Portal 是跨环境的，只需部署一套
-- 客户端通过 `-Denv=DEV` 或环境变量 `ENV=DEV` 指定当前环境
+**多传感器融合：**
 
-## Q9: Apollo 的性能如何？能支撑多大规模？
+`multi_sensor_fusion` 模块将来自 LiDAR、Camera、Radar 的检测结果进行时空对齐和融合，输出统一的障碍物列表，包含位置、速度、类别、置信度等信息，供下游预测和规划模块使用。
 
-**性能指标参考（官方数据）：**
+**附加功能：**
 
-- 单台 Config Service 可支撑 10,000+ 客户端长连接
-- 配置发布后 1 秒内推送到所有客户端（基于 HTTP 长轮询）
-- Portal 操作响应时间通常在毫秒级
+- `lane_detection`：车道线检测
+- `barrier_recognition`：护栏识别
+- `motion_service`：运动状态服务
 
-**扩展建议：**
+## Q8: 如何运行仿真测试？
 
-- Config Service 是无状态的，可以水平扩展，通过增加实例数提升并发能力
-- Admin Service 同样无状态，可水平扩展
-- 数据库是主要瓶颈，大规模场景建议：
-  - 使用 MySQL 主从复制
-  - 配置连接池参数（如 HikariCP 的 `maximumPoolSize`）
-  - 定期清理历史发布记录（`Release` 表和 `ReleaseHistory` 表）
+Apollo 提供多种仿真测试方式：
 
-**客户端本地缓存：**
+**方式一：Dreamview 数据回放仿真**
 
-Apollo 客户端会将配置缓存到本地文件（默认路径 `/opt/data/{appId}/config-cache/`），即使 Config Service 全部不可用，客户端仍能使用本地缓存启动。这是 Apollo 高可用设计的关键。
-
-## Q10: 如何配置 Apollo 的安全访问控制？
-
-**Portal 登录认证：**
-
-Apollo 默认使用简单的用户名密码认证，内置用户 `apollo/admin`。生产环境建议集成企业 SSO：
-
-- 支持 LDAP 集成
-- 支持 OAuth 2.0 / OIDC
-- 支持自定义 SPI 扩展（实现 `UserService` 和 `UserInfoHolder` 接口）
-
-**访问密钥（Access Key）：**
-
-2.0.0+ 版本支持为应用配置访问密钥，客户端必须携带正确的密钥才能读取配置：
-
-```yaml
-apollo:
-  access-key:
-    secret: your-secret-key
-```
-
-在 Portal 中为应用开启访问密钥后，所有客户端请求都需要签名验证。
-
-**权限管理：**
-
-- 应用级别：应用管理员可以管理应用下的命名空间和配置
-- 命名空间级别：可以分别授予编辑权限和发布权限
-- 建议实行编辑和发布分离，避免同一人既修改又发布配置
-
-## Q11: 如何与 Spring Boot / Spring Cloud 集成？
-
-**Spring Boot 集成：**
-
-1. 添加依赖：
-   ```xml
-   <dependency>
-     <groupId>com.ctrip.framework.apollo</groupId>
-     <artifactId>apollo-client</artifactId>
-     <version>2.1.0</version>
-   </dependency>
-   ```
-
-2. 在 `application.yml` 中启用 Apollo Bootstrap：
-   ```yaml
-   app:
-     id: your-app-id
-   apollo:
-     meta: http://config-service-host:8080
-     bootstrap:
-       enabled: true
-       eagerLoad:
-         enabled: true
-       namespaces: application,common
-   ```
-
-3. 在启动类上添加 `@EnableApolloConfig`（Spring Boot 2.x 可省略，bootstrap 模式会自动生效）
-
-**配置注入方式：**
-
-```java
-// 方式一：@Value 注入
-@Value("${timeout:200}")
-private int timeout;
-
-// 方式二：@ConfigurationProperties 绑定
-@ConfigurationProperties(prefix = "redis")
-public class RedisConfig {
-    private String host;
-    private int port;
-}
-
-// 方式三：编程式获取
-Config config = ConfigService.getAppConfig();
-String value = config.getProperty("key", "defaultValue");
-```
-
-**配置热更新：**
-
-- `@Value` 注入的字段默认不会热更新，需要配合 `@RefreshScope`（Spring Cloud）或使用 Apollo 的 `ConfigChangeListener`
-- `@ConfigurationProperties` 在 Apollo 1.7.0+ 支持自动刷新
-- 编程式 API 天然支持热更新
-
-**Spring Cloud 集成注意事项：**
-- Apollo 可以替代 Spring Cloud Config 作为配置中心
-- 如果同时使用 Spring Cloud 和 Apollo，注意配置加载顺序：Apollo bootstrap 配置会在 Spring 上下文刷新前加载
-- 使用 `apollo.bootstrap.eagerLoad.enabled=true` 可以让 Apollo 配置在日志系统初始化前加载，适用于动态配置日志级别
-
-## Q12: 灰度发布怎么用？有哪些注意事项？
-
-灰度发布允许将配置变更先推送给部分实例验证，确认无误后再全量发布。
-
-**操作步骤：**
-
-1. 在 Portal 中进入目标命名空间，点击「灰度」按钮
-2. 创建灰度规则，选择灰度的目标 IP 列表
-3. 在灰度分支中修改配置并发布
-4. 验证灰度实例的行为
-5. 确认无误后，点击「全量发布」将灰度配置合并到主版本
-
-**注意事项：**
-
-- 灰度规则基于客户端 IP 匹配，确保客户端上报的 IP 是准确的
-- 在容器化环境中，Pod IP 可能频繁变化，灰度规则需要及时更新
-- 灰度分支和主分支是独立的，灰度发布不会影响非灰度实例
-- 如果灰度验证失败，可以直接放弃灰度分支，不会影响主版本
-- 全量发布后灰度分支自动清除
-
-## Q13: 版本升级和数据迁移需要注意什么？
-
-**升级前准备：**
-
-1. 备份 `ApolloConfigDB` 和 `ApolloPortalDB`
-2. 阅读目标版本的 Release Notes，关注 Breaking Changes
-3. 检查是否有数据库 Schema 变更（通常在 `scripts/sql/` 目录下提供增量 SQL）
-
-**升级步骤：**
-
-1. 执行数据库增量 SQL 脚本（如果有）
-2. 按顺序升级服务：Config Service → Admin Service → Portal
-3. 升级过程中客户端会自动使用本地缓存，不影响线上服务
-
-**常见升级场景：**
-
-- 1.x → 2.x：注意 Eureka 相关配置变更，2.x 支持更多服务发现方式（如 Nacos、Consul、Kubernetes）
-- 数据库 Schema 变更：始终使用官方提供的增量 SQL，不要手动修改表结构
-- Java 版本要求：2.x 版本要求 Java 8+，部分新特性需要 Java 11+
-
-**从其他配置中心迁移到 Apollo：**
-
-- 从 Spring Cloud Config 迁移：将 Git 仓库中的配置导入 Apollo 的对应命名空间，客户端依赖从 `spring-cloud-config-client` 替换为 `apollo-client`
-- 从 Nacos 迁移：Apollo 提供了 Open API，可以编写脚本批量导入配置
-- 建议采用双读策略过渡：先让应用同时读取旧配置中心和 Apollo，验证一致性后再完全切换
-
-## Q14: 常见启动错误和排查方法
-
-**错误：`Env is set to [UNKNOWN]`**
-
-客户端未正确设置环境变量。解决方法：
-- 添加 JVM 参数 `-Denv=DEV`
-- 或设置操作系统环境变量 `ENV=DEV`
-- 或在 `server.properties` 中配置 `env=DEV`
-
-**错误：`Config service not available`**
-
-Config Service 不可达。排查步骤：
-1. 确认 Config Service 进程正在运行
-2. 检查 Meta Server 地址是否正确
-3. 从客户端机器 curl Meta Server 地址验证网络连通性：
-   ```bash
-   curl http://config-service-host:8080/services/config
-   ```
-4. 检查防火墙和安全组规则
-
-**错误：`Could not resolve placeholder`**
-
-Spring 启动时找不到配置项。排查步骤：
-1. 确认配置项已在 Apollo Portal 中发布（不是仅保存，必须点击发布）
-2. 检查命名空间名称是否匹配
-3. 确认 `app.id` 配置正确
-4. 检查本地缓存文件是否存在过期数据：清除 `/opt/data/{appId}/config-cache/` 目录后重启
-
-**错误：Portal 页面打开空白或 404**
-
-- 确认 Portal 服务已启动且端口 8070 可访问
-- 检查 Portal 的 `apollo-env.properties` 中各环境的 Meta Server 地址是否正确
-- 查看 Portal 日志中是否有数据库连接错误
-
-**日志位置：**
-
-- Config Service / Admin Service：`/opt/logs/100003171/` 和 `/opt/logs/100003172/`
-- Portal：`/opt/logs/100003173/`
-- 客户端：应用自身的日志目录，搜索关键字 `Apollo` 或 `com.ctrip.framework.apollo`
-
-## Q15: Apollo 客户端的本地缓存机制是怎样的？
-
-Apollo 客户端内置了多级容灾机制，确保配置服务不可用时应用仍能正常运行。
-
-**缓存层级（优先级从高到低）：**
-
-1. 内存缓存：客户端运行时始终维护一份最新配置的内存副本
-2. 本地文件缓存：每次从服务端拉取到新配置后，自动写入本地文件
-3. 启动时如果无法连接服务端，自动使用本地文件缓存
-
-**本地缓存路径：**
-
-- 默认路径：`/opt/data/{appId}/config-cache/`
-- 可通过 `apollo.cache-dir` 或 JVM 参数 `-Dapollo.cache-dir=/custom/path` 自定义
-- Windows 下默认路径：`C:\opt\data\{appId}\config-cache\`
-
-**缓存文件格式：**
-
-文件名格式为 `{appId}+{cluster}+{namespace}.properties`，内容为标准的 properties 格式。
-
-**注意事项：**
-
-- 确保应用对缓存目录有读写权限
-- 容器化部署时，建议将缓存目录挂载到持久化存储，避免容器重启后缓存丢失
-- 首次部署且无本地缓存时，如果 Config Service 不可用，应用将无法获取配置并可能启动失败
-- 可以通过 CI/CD 流程预先生成缓存文件来规避首次部署的风险
-
-## Q16: 如何使用 Apollo 的 Open API？
-
-Apollo 提供了完整的 Open API，支持通过 HTTP 接口管理配置，适用于自动化运维和 CI/CD 集成。
-
-**启用 Open API：**
-
-1. 在 Portal 中创建第三方应用，获取 Token
-2. 为第三方应用授权目标应用和命名空间的权限
-
-**常用接口示例：**
+最常用的方式，通过回放预录制的 Record 数据来验证算法：
 
 ```bash
-# 获取配置
-curl -H "Authorization: your-token" \
-  "http://portal-host:8070/openapi/v1/envs/DEV/apps/your-app/clusters/default/namespaces/application"
+# 在 Docker 容器内启动 Dreamview
+bash scripts/bootstrap.sh
 
-# 修改配置
-curl -X PUT -H "Authorization: your-token" \
-  -H "Content-Type: application/json" \
-  -d '{"key":"timeout","value":"3000","dataChangeCreatedBy":"apollo"}' \
-  "http://portal-host:8070/openapi/v1/envs/DEV/apps/your-app/clusters/default/namespaces/application/items/timeout"
-
-# 发布配置
-curl -X POST -H "Authorization: your-token" \
-  -H "Content-Type: application/json" \
-  -d '{"releaseTitle":"release-20260328","releasedBy":"apollo"}' \
-  "http://portal-host:8070/openapi/v1/envs/DEV/apps/your-app/clusters/default/namespaces/application/releases"
+# 回放 Record 文件
+cyber_recorder play -f /path/to/your_record_file -l  # -l 表示循环播放
 ```
 
-**典型使用场景：**
+在 Dreamview 界面中可以实时查看回放数据的感知结果、规划轨迹等。
 
-- CI/CD 流水线中自动更新配置
-- 批量导入或同步配置
-- 自建配置管理工具对接 Apollo
-- 配置审计和合规检查脚本
+**方式二：Dreamview 内置仿真器（Apollo 8.0+）**
+
+Apollo 8.0 在 Dreamview 中集成了本地仿真器，主要面向 PnC（规划与控制）开发者：
+
+1. 在 Dreamview 中选择仿真模式
+2. 选择测试场景
+3. 启动仿真，观察规划和控制模块的表现
+
+**方式三：Apollo 云端仿真平台**
+
+百度 Apollo 提供云端仿真服务（Apollo Studio），支持：
+
+- 大规模场景测试
+- 自动化回归测试
+- 多种天气和光照条件模拟
+
+**仿真调试技巧：**
+
+- 使用 `cyber_monitor` 工具实时监控各 Channel 的数据频率和内容
+- 使用 `cyber_recorder` 录制特定 Channel 的数据用于后续分析
+- 结合日志（AINFO、ADEBUG、AERROR）定位问题
+
+## Q9: 如何进行传感器标定（Calibration）？
+
+传感器标定是实车部署前的关键步骤，用于确定各传感器之间以及传感器与车辆之间的空间变换关系。
+
+**Apollo 支持的标定类型：**
+
+- LiDAR 到 IMU/GNSS 的外参标定
+- Camera 到 LiDAR 的外参标定
+- Radar 到 Camera 的外参标定
+- Camera 内参标定
+
+**标定前置条件：**
+
+1. 所有传感器正常输出数据（可通过 `cyber_channel echo` 命令验证）：
+
+```bash
+# 检查 LiDAR 数据
+cyber_channel echo /apollo/sensor/velodyne64/VelodyneScanUnified
+```
+
+2. 定位状态良好（RTK_FIXED，pos_type = 56）：
+
+```bash
+cyber_channel echo /apollo/sensor/gnss/ins_stat
+```
+
+3. 在开阔、特征丰富的场地采集标定数据
+
+**标定流程：**
+
+1. 按照要求采集标定数据（通常需要驾驶车辆以特定模式行驶）
+2. 使用 Apollo 标定工具处理数据
+3. 检查标定结果质量：良好的标定会产生锐利清晰的拼接点云，可清楚反映建筑立面、路灯杆、路沿等细节
+4. 将标定结果（extrinsics 文件）放置到对应的车辆配置目录
+
+**标定质量检查：**
+
+- 观察点云拼接结果，好的标定结果会产生清晰的点云，差的标定会出现模糊、重影
+- 以建筑立面、灯杆、路沿等直线特征作为参照物
+
+**常见问题：**
+
+- 标定程序权限错误：为输出目录添加写权限 `sudo chmod a+w /apollo/modules/calibration/data/<vehicle> -R`
+- 日志权限错误：`sudo chmod a+x /apollo/data/log`
+
+## Q10: Apollo 的地图格式是什么？如何制作高精地图？
+
+**Apollo 高精地图格式：**
+
+Apollo 使用自定义的 OpenDRIVE 扩展格式（通常称为 Apollo OpenDRIVE 或 Apollo HD Map 格式），以 Protobuf 二进制或 XML 格式存储。地图数据位于 `modules/map/` 目录下。
+
+**地图核心数据结构包括：**
+
+- **Road**：道路信息
+- **Lane**：车道信息，包括车道线类型、限速、转向等
+- **Junction**：交叉路口
+- **Signal**：交通信号灯
+- **StopSign**：停止标志
+- **Crosswalk**：人行横道
+- **ParkingSpace**：停车位
+- **SpeedBump**：减速带
+
+**地图相关工具（`modules/tools/` 目录）：**
+
+- `create_map`：地图创建工具
+- `map_gen`：地图生成工具
+- `mapshow` / `mapviewers`：地图可视化查看工具
+- `map_datachecker`：地图数据检查工具
+
+**高精地图制作流程概述：**
+
+1. 使用搭载 LiDAR 和 GNSS/IMU 的采集车辆在目标区域行驶，采集点云和定位数据
+2. 对采集的点云数据进行拼接，生成高精度三维点云地图
+3. 在点云地图基础上标注车道线、交通标志、信号灯等语义信息
+4. 导出为 Apollo 兼容的地图格式
+5. 使用地图检查工具验证地图质量
+
+**使用现有地图：**
+
+Apollo 附带了若干示例地图（位于 `modules/map/data/` 目录），可直接用于仿真和测试。在 Dreamview 中可以切换不同的地图。
+
+## Q11: 如何在实车上部署 Apollo？
+
+实车部署是一个系统工程，主要步骤如下：
+
+**1. 硬件准备：**
+
+- 线控车辆（Apollo 主要在 Lincoln MKZ 上验证）
+- 工控机（IPC），满足算力要求
+- 传感器套件（LiDAR、Camera、Radar、GNSS/IMU）
+- CAN 卡（用于车辆线控通信）
+
+**2. 硬件安装与接线：**
+
+按照 Apollo 硬件安装指南完成传感器安装、接线和供电配置。
+
+**3. 软件环境部署：**
+
+```bash
+# 在工控机上安装 Docker 和 NVIDIA 驱动
+# 启动 Apollo 运行时容器
+bash docker/scripts/runtime_start.sh
+
+# 进入容器
+bash docker/scripts/runtime_into.sh
+```
+
+注意：实车部署使用 `runtime_start.sh`（运行时容器），而非开发时使用的 `dev_start.sh`（开发容器）。
+
+**4. 传感器标定：**
+
+完成所有传感器的外参标定（参见 Q9）。
+
+**5. 车辆适配与配置：**
+
+- 配置 CAN 总线通信参数（`modules/canbus/`）
+- 配置车辆动力学参数
+- 在 Dreamview 中选择正确的车辆配置
+
+**6. 分步验证：**
+
+强烈建议按照 Apollo 版本路线逐步验证：
+
+- 先验证 GPS 循迹（Apollo 1.0 级别功能）
+- 再验证带感知的固定车道巡航
+- 最后进行复杂场景测试
+
+**安全注意事项：**
+
+- 始终确保安全员在驾驶位
+- 初次测试应在封闭场地进行
+- 确认紧急停车机制（E-Stop）可靠
+
+## Q12: Bazel 构建系统的常见问题
+
+Apollo 使用 Bazel 作为构建系统。以下是常见问题和解决方法：
+
+**问题：编译缓存占用空间过大**
+
+Bazel 的编译缓存默认存储在 `/apollo/.cache/` 目录下，大型项目可能占用数十 GB 空间。
+
+```bash
+# 清除编译缓存
+rm -rf /apollo/.cache/{bazel,build,repos}
+```
+
+**问题：编译速度慢**
+
+- 确保分配了足够的内存（建议 16GB+）
+- 使用 `--jobs` 参数控制并行编译数：`bazel build --jobs=8 //modules/planning/...`
+- 增量编译：只编译修改过的模块，而非全量编译
+
+**问题：依赖下载失败**
+
+Bazel 需要从网络下载外部依赖，在国内网络环境下可能遇到超时：
+
+- 使用 Apollo Docker 镜像（已预置大部分依赖）
+- 配置代理或使用国内镜像源
+
+**问题：BUILD 文件语法错误**
+
+```bash
+# 检查 BUILD 文件格式
+# Apollo 使用 Starlark 语法（类 Python），注意使用 load() 导入规则
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+```
+
+**问题：Protobuf 编译错误**
+
+Apollo 大量使用 Protobuf 定义数据结构。如果修改了 `.proto` 文件：
+
+- 确保 `BUILD` 文件中正确声明了 `proto_library` 和对应的 `cc_proto_library`
+- 检查 `proto` 文件的 `import` 路径是否正确
+
+**常用编译命令：**
+
+```bash
+# 全量编译
+bash apollo.sh build
+
+# 编译特定模块
+bazel build //modules/planning/...
+
+# 编译并运行测试
+bazel test //modules/planning/...
+
+# 清除编译输出
+bazel clean --expunge
+```
+
+## Q13: 如何切换/适配不同的车辆平台？
+
+Apollo 支持适配不同的线控车辆平台，主要涉及以下配置：
+
+**车辆适配的核心模块：**
+
+- `modules/canbus/`：CAN 总线通信模块，处理与车辆底盘的通信
+- `modules/canbus_vehicle/`：各车辆平台的具体协议实现
+- `modules/control/`：控制模块，需要根据车辆动力学特性调整参数
+
+**适配步骤：**
+
+1. **实现 CAN 协议**：根据目标车辆的 CAN 通信协议，在 `modules/canbus_vehicle/` 下创建新的车辆协议实现。Apollo 提供了协议生成工具（`modules/tools/gen_vehicle_protocol/`）辅助生成协议代码框架。
+
+2. **配置车辆参数**：包括车辆长宽高、轮距、轴距、最大转向角、最大加减速度等物理参数。
+
+3. **调整控制参数**：根据车辆的响应特性调整 PID 控制器参数或 MPC 控制器参数。
+
+4. **配置传感器布局**：根据传感器在新车辆上的实际安装位置，更新传感器外参配置。
+
+5. **在 Dreamview 中注册**：将新车辆配置注册到 Dreamview 中，使其可以在界面中选择。
+
+**注意事项：**
+
+- 不同车辆平台的线控响应特性差异较大，控制参数需要在实车上反复调试
+- 建议先在低速封闭场地验证基本的线控功能（油门、刹车、转向）
+- 安全起见，初次调试时应限制最大车速和最大转向角
+
+## Q14: Apollo 支持哪些深度学习模型？如何替换？
+
+Apollo 感知模块集成了多种深度学习模型：
+
+**LiDAR 检测模型：**
+
+- PointPillars 系列
+- CenterPoint 系列
+- 自研的 CPDET（`lidar_cpdet_detection`）模型
+- LiDAR 分割模型（`lidar_segmentation`）
+
+**Camera 检测模型：**
+
+- 单阶段检测（`camera_detection_single_stage`）
+- 多阶段检测（`camera_detection_multi_stage`）
+- BEV 检测（`camera_detection_bev`）— Apollo 9.0+ 新增
+- Occupancy 检测（`camera_detection_occupancy`）— Apollo 9.0+ 新增
+
+**车道线检测模型：**
+
+- `lane_detection` 模块中的深度学习模型
+
+**模型替换方法：**
+
+1. **使用 Apollo 增量训练**：Apollo 9.0+ 开放了 LiDAR 和 Camera 检测模型的增量训练方法，可以在已有模型基础上用自己的数据进行微调。
+
+2. **替换推理模型**：
+   - 将训练好的模型导出为 Apollo 支持的推理格式（通常为 ONNX 或 LibTorch）
+   - 替换对应模块 `data/` 或 `model/` 目录下的模型文件
+   - 修改对应的配置文件，指定新模型路径和参数
+
+3. **自定义感知插件**：Apollo 9.0+ 通过 `perception_plugin` 机制支持以插件方式扩展感知算法，无需修改主干代码。
+
+**模型推理框架：**
+
+- x86_64 平台：LibTorch 1.7.0
+- aarch64 平台：LibTorch 1.11.0（Apollo 2024 年 11 月更新）
+- 同时支持 TensorRT 加速推理
+
+## Q15: 常见编译错误和解决方法
+
+**错误：CUDA 相关编译失败**
+
+```
+nvcc fatal: Unsupported gpu architecture 'compute_XX'
+```
+
+确认 CUDA 版本与 GPU 架构匹配。Apollo 当前使用 CUDA 11.8，支持 NVIDIA Ada Lovelace（40 系列）及之前的 GPU。确保 NVIDIA 驱动版本 >= 520.61.05。
+
+**错误：内存不足（OOM）**
+
+```
+C++ compilation of rule ... failed: (Exit 137)
+```
+
+Bazel 并行编译可能耗尽内存。解决方法：
+
+```bash
+# 减少并行 job 数
+bazel build --jobs=4 //modules/...
+# 或为容器分配更多内存
+```
+
+**错误：Docker 容器内 GPU 不可用**
+
+```bash
+# 确认 NVIDIA Container Toolkit 已安装
+nvidia-smi  # 在容器内执行，应能看到 GPU 信息
+
+# 如果无法看到，重启容器
+bash docker/scripts/dev_start.sh
+```
+
+**错误：Protobuf 版本冲突**
+
+如果引入第三方库导致 Protobuf 版本冲突，需确保所有依赖使用 Apollo 内置的 Protobuf 版本。
+
+**错误：`source cyber/setup.bash` 失败**
+
+确保在 Apollo Docker 容器内执行，且已完成编译。该脚本设置 CyberRT 相关的环境变量和路径。
+
+**升级后编译失败：**
+
+拉取新版本代码后，建议清除旧的编译缓存：
+
+```bash
+rm -rf /apollo/.cache/{bazel,build,repos}
+# 重启容器
+bash docker/scripts/dev_start.sh
+bash docker/scripts/dev_into.sh
+# 重新编译
+bash apollo.sh build
+```
+
+**调试建议：**
+
+- 使用 `AINFO`、`ADEBUG`、`AERROR` 等日志宏输出调试信息
+- 大多数问题可以通过日志定位，如需更详细调试可使用 GDB（Apollo 提供了 `dev_start_gdb_server.sh` 脚本）
+
+## Q16: 如何使用 Record 进行数据回放？
+
+Record 是 CyberRT 的数据录制和回放格式（类似 ROS 中的 rosbag），用于记录和重放各 Channel 上的消息数据。
+
+**录制数据：**
+
+```bash
+# 录制所有 Channel
+cyber_recorder record -a -o /path/to/output.record
+
+# 录制指定 Channel
+cyber_recorder record -c /apollo/sensor/lidar/pointcloud \
+  -c /apollo/localization/pose \
+  -c /apollo/perception/obstacles \
+  -o /path/to/output.record
+```
+
+**查看 Record 信息：**
+
+```bash
+# 查看 Record 文件的基本信息
+cyber_recorder info /path/to/your.record
+```
+
+该命令会显示 Record 文件的时长、消息数量、包含的 Channel 列表及每个 Channel 的消息类型和数量。
+
+**回放数据：**
+
+```bash
+# 基本回放
+cyber_recorder play -f /path/to/your.record
+
+# 循环回放
+cyber_recorder play -f /path/to/your.record -l
+
+# 指定回放速率（0.5 表示半速）
+cyber_recorder play -f /path/to/your.record -r 0.5
+
+# 回放指定 Channel
+cyber_recorder play -f /path/to/your.record -c /apollo/sensor/lidar/pointcloud
+```
+
+**配合 Dreamview 使用：**
+
+1. 启动 Dreamview：`bash scripts/bootstrap.sh`
+2. 在 Dreamview 中选择对应的地图和车辆配置
+3. 启动需要测试的模块（如 Perception、Planning）
+4. 在另一个终端回放 Record 文件
+5. 在 Dreamview 界面中实时查看各模块的处理结果
+
+**其他 CyberRT 工具：**
+
+- `cyber_monitor`：实时监控各 Channel 的数据频率和内容
+- `cyber_channel list`：列出当前活跃的 Channel
+- `cyber_channel echo <channel_name>`：打印指定 Channel 的实时数据
+- `cyber_node list`：列出当前活跃的 Node
+- `cyber_launch start <launch_file>`：通过 Launch 文件启动组件
+
+**常见问题：**
+
+- 回放时模块未收到数据：检查 Record 中的 Channel 名称是否与模块订阅的 Channel 一致
+- 回放数据时间戳过旧：某些模块可能会丢弃时间戳过旧的数据，使用 Dreamview 的 "Sim Control" 模式可以解决此问题
