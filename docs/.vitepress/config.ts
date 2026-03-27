@@ -9,8 +9,10 @@ import {
 
 /** GitHub Pages: https://<user>.github.io/<repo>/ */
 const base = '/apollo-docs/'
-/** 文档站仓库，用于 Git 变更日志中的 commit 链接 */
+/** 本站文档源代码（commit 链接、协作入口） */
 const docsRepoURL = 'https://github.com/SakuraPuare/apollo-docs'
+/** Apollo 官方上游，文档内容参考的源码与发布仓库 */
+const apolloUpstreamURL = 'https://github.com/ApolloAuto/apollo'
 
 export default withMermaid(defineConfig({
   base,
@@ -288,7 +290,16 @@ export default withMermaid(defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: docsRepoURL },
+      {
+        icon: 'github',
+        link: docsRepoURL,
+        ariaLabel: '本站文档源代码仓库（apollo-docs）',
+      },
+      {
+        icon: 'github',
+        link: apolloUpstreamURL,
+        ariaLabel: 'Apollo 上游参考仓库（ApolloAuto/apollo）',
+      },
     ],
 
     search: { provider: 'local' },
