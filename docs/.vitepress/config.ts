@@ -50,6 +50,14 @@ export default defineConfig({
           ],
         },
         {
+          text: '开发环境与工具',
+          items: [
+            { text: 'Docker 开发环境', link: '/guide/docker-env' },
+            { text: '脚本与工具链', link: '/guide/scripts' },
+            { text: '数据采集模块', link: '/guide/data-collection' },
+          ],
+        },
+        {
           text: '项目信息',
           items: [
             { text: '版本更新日志', link: '/guide/changelog' },
