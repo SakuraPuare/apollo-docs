@@ -153,7 +153,7 @@ struct Frame {
 | 多阶段检测 | `CameraDetectionMultiStageComponent` | `/apollo/sensor/camera/*/image` | `/perception/inner/Detection` | YOLO / YOLOx3D 2D 检测 |
 | 单阶段检测 | `CameraDetectionSingleStageComponent` | `/apollo/sensor/camera/*/image` | `/perception/inner/Detection` | SMOKE / CADDN 直接 3D 检测 |
 | BEV 检测 | `CameraDetectionBevComponent` | 多路相机图像 | `/perception/inner/Detection` | PETR 多视角 BEV 检测 |
-| 占据网格检测 | `CameraDetectionOccupancyComponent` | 多路相机图像 | `/perception/inner/Detection` | BEVFormer 占据网格 |
+| 占据网格检测 | `CameraDetectionOccComponent` | 多路相机图像 | `/perception/inner/Detection` | BEVFormer 占据网格 |
 | 位置估计 | `CameraLocationEstimationComponent` | `/perception/inner/Detection` | `/perception/inner/location_estimation` | 2D→3D 位置变换（MultiCue） |
 | 位置精修 | `CameraLocationRefinementComponent` | `/perception/inner/location_estimation` | `/perception/inner/location_refinement` | 利用地面约束精修 3D 位置 |
 | 目标跟踪 | `CameraTrackingComponent` | `/perception/inner/location_refinement` | `/perception/inner/PrefusedObjects` | OMT 多目标跟踪 |
