@@ -24,7 +24,7 @@ public:
   Parameter(const std::string& name, const bool bool_value);
   Parameter(const std::string& name, const int int_value);
   Parameter(const std::string& name, const int64_t int_value);
-  Parameter(const std::string& name, const float double_value);
+  Parameter(const std::string& name, const float float_value);
   Parameter(const std::string& name, const double double_value);
   Parameter(const std::string& name, const std::string& string_value);
   Parameter(const std::string& name, const char* string_value);

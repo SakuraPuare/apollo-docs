@@ -97,7 +97,7 @@ class LogFileObject : public google::base::Logger {
 ```
 
 关键行为：
-- 日志文件命名：`{base_filename}{timestamp}.{hostname}.{pid}.log`
+- 日志文件命名：`{base_filename}{YYYYMMDD-HHmmss.pid}`
 - 创建文件时同时创建符号链接，便于快速定位最新日志
 - 支持按文件大小轮转（由 `FLAGS_max_log_size` 控制）
 - 磁盘满时自动停止写入（`FLAGS_stop_logging_if_full_disk`）

@@ -323,7 +323,7 @@ message InnerThread {
   optional string name = 1;
   optional string cpuset = 2;
   optional string policy = 3;    // SCHED_OTHER / SCHED_RR / SCHED_FIFO
-  optional uint32 prio = 4;
+  optional uint32 prio = 4 [default = 1];
 }
 ```
 

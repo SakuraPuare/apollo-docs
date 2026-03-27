@@ -85,7 +85,7 @@ class TimingWheel {
 ```cpp
 // cyber/timer/timer.h
 struct TimerOption {
-  uint32_t period = 0;                // 周期，单位毫秒（范围 1 ~ 65536）
+  uint32_t period = 0;                // 周期，单位毫秒（范围 1 ~ 65535）
   std::function<void()> callback;     // 回调函数
   bool oneshot;                       // true: 单次触发  false: 周期触发
 };

@@ -193,8 +193,8 @@ public:
   virtual void ClearData() = 0;
   virtual void Observe() = 0;
   virtual bool Empty() const = 0;
-  virtual bool HasWriter() = 0;
-  virtual void GetWriters(std::vector<proto::RoleAttributes>* writers) = 0;
+  virtual bool HasWriter();
+  virtual void GetWriters(std::vector<proto::RoleAttributes>* writers);
 
   const std::string& GetChannelName() const;
   uint64_t ChannelId() const;

@@ -45,7 +45,7 @@ private:
 ```
 
 初始化流程：
-1. 创建 RTPS Participant，名称格式为 `hostname+pid`，监听端口 `11511`
+1. 创建 RTPS Participant，名称格式为 `hostname+pid`，监听端口 `11512`
 2. 注册 `ParticipantListener` 监听其他 Participant 的发现/移除事件
 3. 依次初始化 NodeManager、ChannelManager、ServiceManager，各自通过 `StartDiscovery` 创建独立的 RTPS Publisher/Subscriber
 
@@ -285,7 +285,7 @@ RTPS 检测到远程 Participant 离开
 
 ServiceDiscovery 模块的配置主要通过以下方式：
 
-- RTPS Participant 端口：硬编码为 `11511`（见 `TopologyManager::CreateParticipant`）
+- RTPS Participant 端口：硬编码为 `11512`（见 `TopologyManager::CreateParticipant`）
 - Participant 名称：自动生成，格式为 `hostname+pid`
 - QoS 配置：各 Manager 的 Publisher/Subscriber 使用 `QOS_PROFILE_TOPO_CHANGE` 配置
 - 广播 Topic 名称：
