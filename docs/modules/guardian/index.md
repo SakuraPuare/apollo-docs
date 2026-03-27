@@ -215,6 +215,7 @@ constexpr double kSecondsTillTimeout(2.5);
 
 bool safety_mode_triggered = false;
 if (guardian_conf_.guardian_enable()) {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (Time::Now().ToSecond() - last_status_received_s_ > kSecondsTillTimeout) {
         safety_mode_triggered = true;
     }
