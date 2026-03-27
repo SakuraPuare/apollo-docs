@@ -131,7 +131,7 @@ tf2 内部维护一棵以帧 ID 为节点的有向树。查询任意两帧之间
 
 高级查询 `lookupTransform(target, target_time, source, source_time, fixed_frame)` 用于处理不同时刻的变换：
 
-$$T_{target}^{t_1} = T_{fixed \leftarrow target}^{t_1} \cdot T_{source \leftarrow fixed}^{t_2}$$
+$$T_{target \leftarrow source} = T_{target \leftarrow fixed}^{t_1} \cdot T_{fixed \leftarrow source}^{t_2}$$
 
 即先在 $t_2$ 时刻从 source 变换到 fixed_frame，再在 $t_1$ 时刻从 fixed_frame 变换到 target。
 
