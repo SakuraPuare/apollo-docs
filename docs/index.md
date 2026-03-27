@@ -17,9 +17,6 @@ hero:
     - theme: alt
       text: 文档源码
       link: https://github.com/SakuraPuare/apollo-docs
-    - theme: alt
-      text: Apollo 上游
-      link: https://github.com/ApolloAuto/apollo
 
 features:
   - icon: 🧠
