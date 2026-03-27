@@ -36,6 +36,7 @@ TEST(Vec2dTest, NomralCases) {
   EXPECT_NEAR(pt.Length(), std::sqrt(13.0), 1e-5);
   EXPECT_NEAR(pt.LengthSquare(), 13.0, 1e-5);
   EXPECT_NEAR(pt.DistanceTo({0, 0}), std::sqrt(13.0), 1e-5);
+  // ... 省略 DistanceSquareTo 等断言 ...
   EXPECT_NEAR(pt.Angle(), std::atan2(3, 2), 1e-5);
   EXPECT_NEAR(pt.CrossProd({4, 5}), -2, 1e-5);
   EXPECT_NEAR(pt.InnerProd({4, 5}), 23, 1e-5);
@@ -177,7 +178,6 @@ apollo_cc_test(
 Apollo 在感知、规划等模块中使用 Mock 函数构造测试输入数据。以雷达检测模块为例，通过 Mock 函数构造传感器原始观测数据：
 
 ```cpp
-#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 // 构造模拟的毫米波雷达观测数据
@@ -409,7 +409,7 @@ bool ControlTestBase::test_control(
       FLAGS_test_data_dir + golden_result_file;
 
   ControlCommand golden_result;
-  bool load_success = cyber::common::GetProtoFromFile(
+  bool load_success = cyber::common::GetProtoFromASCIIFile(
       full_golden_path, &golden_result);
 
   if (FLAGS_test_update_golden_log) {
