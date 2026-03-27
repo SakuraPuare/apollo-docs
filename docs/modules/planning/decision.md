@@ -98,8 +98,8 @@ class TrafficRule {
 1. **查找人行横道**：通过 `FindCrosswalks` 获取参考线前方的人行横道重叠区域
 2. **障碍物检测**：对每个人行横道，检查附近的行人和自行车障碍物
 3. **分层决策逻辑**：
-   - 横向距离 < `stop_strict_l_distance`（默认 5.0m）：严格停车区域，检查障碍物是否朝向自车移动
-   - 横向距离 > `stop_loose_l_distance`（默认 5.0m）：宽松区域，可忽略
+   - 横向距离 ≤ `stop_strict_l_distance`（proto 默认 4.0m，conf 文件覆盖为 5.0m）：严格停车区域。若障碍物在道路上且在自车前方，直接停车；若不在道路上但轨迹交叉，停车；若不在道路上且轨迹不交叉，检查障碍物是否朝向自车移动
+   - 横向距离 > `stop_loose_l_distance`（默认 5.0m）：宽松区域，仅当轨迹交叉（is_path_cross）时才停车，否则忽略
    - 两者之间：使用历史决策平滑，避免决策抖动
 4. **超时机制**：行人/自行车静止超过 `stop_timeout`（默认 10s）后可通过
 5. **减速度检查**：停车减速度超过 `max_stop_deceleration` 且障碍物在宽松区域时跳过
@@ -129,7 +129,7 @@ class TrafficRule {
 
 **源码位置**：`traffic_rules/reference_line_end/`
 
-当参考线剩余长度不足 `min_reference_line_remain_length`（默认 50.0m）时，在参考线末端创建虚拟停车墙（ID 前缀 `REF_END_`），防止车辆驶出参考线范围。
+当参考线剩余长度不足 `min_reference_line_remain_length`（默认 50.0m）时，在参考线末端创建虚拟停车墙（ID 前缀 `REF_END_`），使用 `STOP_REASON_DESTINATION` 作为停车原因码，防止车辆驶出参考线范围。
 
 #### 2.3.8 BacksideVehicle（后方车辆）
 
@@ -154,7 +154,7 @@ class TrafficRule {
 
 **源码位置**：`traffic_rules/speed_setting/`
 
-处理外部速度指令：
+处理外部速度指令（SpeedSetting 无独立配置 Proto，直接响应外部 SpeedCommand）：
 1. 响应 `SpeedCommand` 类型的自定义命令
 2. 支持设置绝对目标速度（`target_speed`）和速度因子（`target_speed_factor`）
 3. 支持恢复默认目标速度（`is_restore_target_speed`）
@@ -285,7 +285,7 @@ message ObjectDecisionType {
 
 | 决策类型 | 关键字段 | 说明 |
 |---------|---------|------|
-| ObjectStop | reason_code, distance_s, stop_point, stop_heading | 停车原因码、停车距离、停车点位置和朝向 |
+| ObjectStop | reason_code, distance_s, stop_point, stop_heading, wait_for_obstacle | 停车原因码、停车距离、停车点位置、朝向和等待障碍物标识 |
 | ObjectFollow | distance_s, fence_point, fence_heading | 跟车距离、围栏点 |
 | ObjectYield | distance_s, fence_point, time_buffer | 让行距离、时间缓冲 |
 | ObjectOvertake | distance_s, fence_point, time_buffer | 超车距离、时间缓冲 |
@@ -301,6 +301,7 @@ enum StopReasonCode {
   STOP_REASON_DESTINATION = 2;         // 目的地
   STOP_REASON_PEDESTRIAN = 3;          // 行人
   STOP_REASON_OBSTACLE = 4;            // 障碍物
+  STOP_REASON_PREPARKING = 5;          // 预泊车
   STOP_REASON_SIGNAL = 100;            // 红灯
   STOP_REASON_STOP_SIGN = 101;         // 停止标志
   STOP_REASON_YIELD_SIGN = 102;        // 让行标志
@@ -311,6 +312,7 @@ enum StopReasonCode {
   STOP_REASON_YELLOW_SIGNAL = 107;     // 黄灯
   STOP_REASON_PULL_OVER = 108;         // 靠边停车
   STOP_REASON_SIDEPASS_SAFETY = 109;   // 侧方通过安全
+  STOP_REASON_PRE_OPEN_SPACE_STOP = 200; // 开放空间预停车
   STOP_REASON_LANE_CHANGE_URGENCY = 201; // 紧急变道
   STOP_REASON_EMERGENCY = 202;         // 紧急停车
 }
@@ -371,12 +373,13 @@ message PluginDeclareInfo {
 | TrafficLight | `TrafficLightConfig` | enabled, stop_distance(1.0m), max_stop_deceleration(4.0) |
 | StopSign | `StopSignConfig` | enabled, stop_distance(1.0m) |
 | YieldSign | `YieldSignConfig` | enabled, stop_distance(1.0m) |
-| Crosswalk | `CrosswalkConfig` | stop_distance(1.0m), max_stop_deceleration(4.0), stop_strict_l_distance(4.0m), stop_loose_l_distance(5.0m), stop_timeout(10.0s), expand_s_distance(2.0m) |
+| Crosswalk | `CrosswalkConfig` | stop_distance(1.0m), max_stop_deceleration(4.0), stop_strict_l_distance(4.0m, conf覆盖为5.0m), stop_loose_l_distance(5.0m), stop_timeout(10.0s), expand_s_distance(2.0m) |
 | KeepClear | `KeepClearConfig` | enable_keep_clear_zone, enable_junction, min_pass_s_distance(2.0m), align_with_traffic_sign_tolerance(4.5m) |
 | Destination | `DestinationConfig` | stop_distance(0.5m) |
 | ReferenceLineEnd | `ReferenceLineEndConfig` | stop_distance(0.5m), min_reference_line_remain_length(50.0m) |
 | BacksideVehicle | `BacksideVehicleConfig` | backside_lane_width(4.0m) |
 | Rerouting | `ReroutingConfig` | cooldown_time(3.0s), prepare_rerouting_time(2.0s) |
+| SpeedSetting | 无独立配置 Proto | 直接响应外部 SpeedCommand |
 
 ## 5. 配置方式
 
