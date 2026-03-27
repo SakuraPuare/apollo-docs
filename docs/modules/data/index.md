@@ -58,6 +58,8 @@ modules/data/
 ```cpp
 class RecordProcessor {
  public:
+  RecordProcessor(const std::string& source_record_dir,
+                  const std::string& restored_output_dir);
   virtual bool Init(const SmartRecordTrigger& trigger_conf);
   virtual bool Process() = 0;
   virtual std::string GetDefaultOutputFile() const = 0;
@@ -80,7 +82,7 @@ class RecordProcessor {
 关键机制：
 
 - 启动 `Recorder` 录制全量数据
-- 启动 `MonitorStatus` 线程定期发布录制状态到 `/apollo/monitor/smart_recorder_status`
+- 启动 `MonitorStatus` 线程定期发布录制状态到 `/apollo/data/recorder/status`
 - 主循环中逐条消息调用各触发器的 `Pull()` 方法
 - `RestoreMessage()` 根据 `IntervalPool` 中的时间区间，选择性地将消息写入输出文件
 - 支持过期录制文件自动清理（`reused_record_num` 控制保留数量）
@@ -120,8 +122,8 @@ class TriggerBase {
 |--------|----------|----------|
 | `DriveEventTrigger` | `/apollo/common/drive_event` | 收到驾驶事件消息 |
 | `EmergencyModeTrigger` | `/apollo/canbus/chassis` | 驾驶模式从 `COMPLETE_AUTO_DRIVE` 切换到 `EMERGENCY_MODE` |
-| `HardBrakeTrigger` | `/apollo/canbus/chassis` | 通过滑动窗口检测速度骤降（窗口大小 10，阈值 10 m/s） |
-| `SwerveTrigger` | `/apollo/canbus/chassis` | 通过滑动窗口检测转向百分比骤变（窗口大小 10，阈值 10%） |
+| `HardBrakeTrigger` | `/apollo/canbus/chassis` | 使用双滑动窗口（history 和 current 队列）比较历史窗口与当前窗口的速度均值差，差值超过阈值（10 m/s）时触发 |
+| `SwerveTrigger` | `/apollo/canbus/chassis` | 使用双滑动窗口（history 和 current 队列）比较历史窗口与当前窗口的转向百分比均值差，差值超过阈值（10%）时触发 |
 | `BumperCrashTrigger` | `/apollo/canbus/chassis` | 前/后保险杠状态变为 `BUMPER_PRESSED` |
 | `RegularIntervalTrigger` | 任意消息 | 每 300 秒（5 分钟）定时触发一次 |
 | `SmallTopicsTrigger` | 小话题集合 | 不触发事件，但通过 `ShouldRestore()` 确保小话题消息始终被恢复 |
@@ -179,7 +181,7 @@ class TriggerBase {
 
 **Frame**（数据帧）：描述单帧传感器数据，包含：
 - 设备位姿（`device_position`、`device_heading`、`device_gps_pose`）
-- 点云数据（`points`，`Vector4` 含 x/y/z/intensity 和 is_ground 标记）
+- 点云数据（`points`，`Vector4` 含 x/y/z/i 和 is_ground 标记）
 - 雷达点（`radar_points`，区分前/后雷达）
 - 相机图像（`images`，含内参、畸变参数和通道名）
 
