@@ -67,6 +67,7 @@ class AudioComponent
   DirectionDetection direction_detection_;
   MovingDetection moving_detection_;
   SirenDetection siren_detection_;
+  std::string respeaker_extrinsics_file_;
 };
 ```
 
