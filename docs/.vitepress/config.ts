@@ -9,6 +9,8 @@ import {
 
 /** GitHub Pages: https://<user>.github.io/<repo>/ */
 const base = '/apollo-docs/'
+/** 文档站仓库，用于 Git 变更日志中的 commit 链接 */
+const docsRepoURL = 'https://github.com/SakuraPuare/apollo-docs'
 
 export default withMermaid(defineConfig({
   base,
@@ -38,7 +40,7 @@ export default withMermaid(defineConfig({
     plugins: [
       groupIconVitePlugin(),
       GitChangelog({
-        repoURL: () => 'https://github.com/ApolloAuto/apollo',
+        repoURL: () => docsRepoURL,
       }),
       GitChangelogMarkdownSection(),
     ],
@@ -286,7 +288,7 @@ export default withMermaid(defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/ApolloAuto/apollo' },
+      { icon: 'github', link: docsRepoURL },
     ],
 
     search: { provider: 'local' },
