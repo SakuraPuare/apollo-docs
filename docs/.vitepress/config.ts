@@ -23,6 +23,23 @@ export default defineConfig({
             { text: '架构概览', link: '/guide/architecture' },
           ],
         },
+        {
+          text: '构建与依赖',
+          items: [
+            { text: '构建系统', link: '/guide/build-system' },
+            { text: '第三方依赖库', link: '/guide/dependencies' },
+            { text: 'WORKSPACE 依赖', link: '/guide/workspace-deps' },
+            { text: '代码规范', link: '/guide/code-style' },
+          ],
+        },
+        {
+          text: '项目信息',
+          items: [
+            { text: '版本更新日志', link: '/guide/changelog' },
+            { text: '贡献指南', link: '/guide/contributing' },
+            { text: '常见问题 FAQ', link: '/guide/faq' },
+          ],
+        },
       ],
       '/cyber/': [
         {
