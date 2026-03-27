@@ -68,6 +68,10 @@ class Dreamview {
   std::unique_ptr<WebSocketHandler> plugin_ws_;         // /plugin
   std::unique_ptr<WebSocketHandler> socket_manager_ws_; // /socketmanager
   std::unique_ptr<WebSocketHandler> channels_info_ws_;  // /channelsinfo
+  std::unique_ptr<ImageHandler> image_;
+  std::unique_ptr<ProtoHandler> proto_handler_;
+  std::unique_ptr<PluginManager> plugin_manager_;
+  std::unique_ptr<cyber::Timer> exit_timer_;
 };
 ```
 
@@ -153,7 +157,7 @@ class UpdaterManager {
 | `pointcloud`   | `PointCloudUpdater`         | 激光雷达点云            |
 | `map`          | `MapUpdater`                | 高精地图元素            |
 | `obstacle`     | `ObstacleUpdater`           | 感知障碍物              |
-| `channelsinfo` | `ChannelsUpdater`           | 任意 Cyber 通道原始数据  |
+| `channelsinfo` | `ChannelsUpdater`           | 任意 Cyber 通道原始数据（注：`ChannelsUpdater` 直接继承 `UpdaterBase` 而非 `UpdaterWithChannelsBase`，通过自身的 RawMessage 机制支持订阅任意通道；其在 `data_handler.conf` 中的 `data_name` 为 `"cyber"`，`channelsinfo` 是 websocket_name/路径） |
 
 #### `SimulationWorldService`
 
@@ -168,15 +172,17 @@ class UpdaterManager {
 - **规划**（`ADCTrajectory`）：规划轨迹、决策信息、速度规划
 - **规划命令**（`PlanningCommand`）：当前执行的规划命令
 - **控制**（`ControlCommand`）：控制指令
-- **路由**（`RoutingResponse`）：全局路径
 - **交通灯**（`TrafficLightDetection`）：交通灯检测结果
 - **GPS**（`Gps`）：GPS 原始数据
 - **相对地图**（`MapMsg`）：导航模式下的相对地图
 - **故事**（`Stories`）：场景故事信息
 - **音频检测**（`AudioDetection`）：音频事件
 - **任务管理**（`Task`）：任务状态
+- **导航信息**（`NavigationInfo`）
+- **驾驶事件**（`DriveEvent`）
+- **监控消息**（`MonitorMessage`）
 
-同时提供 Writer/Client 用于发送路由请求（`LaneFollowCommand`、`ValetParkingCommand`、`ActionCommand`）、导航信息和任务命令。
+同时提供 Writer/Client 用于发送路由请求（`LaneFollowCommand`、`ValetParkingCommand`、`ActionCommand`）、导航信息、任务命令和路由响应（`RoutingResponse`）。
 
 #### `SocketManager`
 
@@ -331,6 +337,7 @@ Dreamview Plus 前端采用 Lerna monorepo 架构，主要包含以下子包：
 - `InitiationMarker` / `PathwayMarker`：路由编辑起终点标记
 - `CopyMarker`：坐标复制
 - `RulerMarker`：测距工具
+- `IndoorLocalizationMarker`：室内定位标记
 - `RoutingEditor`：路由编辑器
 
 渲染引擎使用的颜色映射体系包括：
@@ -485,7 +492,7 @@ Launch 文件 `modules/dreamview_plus/launch/dreamview_plus.launch`：
 | `voxel_filter_size` | 点云体素滤波尺寸 |
 | `voxel_filter_height` | 点云高度滤波阈值 |
 | `dreamview_profiling_mode` | 是否启用性能分析模式 |
-| `dreamview_profiling_duration` | 性能分析模式运行时长（秒） |
+| `dreamview_profiling_duration` | 性能分析模式运行时长（毫秒） |
 | `dv_cpu_profile` | 启用 CPU 性能分析（gperftools，仅 Dreamview Plus） |
 | `dv_heap_profile` | 启用堆内存分析（gperftools，仅 Dreamview Plus） |
 | `default_hmi_mode` | 默认 HMI 模式，Dreamview Plus 默认 `Default` |
