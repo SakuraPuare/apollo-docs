@@ -11,6 +11,8 @@ import {
 const base = '/apollo-docs/'
 /** 本站文档源代码（commit 链接、协作入口） */
 const docsRepoURL = 'https://github.com/SakuraPuare/apollo-docs'
+/** 本站仓库主账号，用于 Git 变更日志里「贡献者」头像与主页链接（非 GitHub noreply 邮箱时需 mapAuthors） */
+const docsGitHubOwner = 'SakuraPuare'
 /** Apollo 官方上游，文档内容参考的源码与发布仓库 */
 const apolloUpstreamURL = 'https://github.com/ApolloAuto/apollo'
 
@@ -43,6 +45,14 @@ export default withMermaid(defineConfig({
       groupIconVitePlugin(),
       GitChangelog({
         repoURL: () => docsRepoURL,
+        // 普通邮箱不会自动推断 GitHub；在此绑定 username 后贡献者名前会链到个人主页
+        mapAuthors: [
+          {
+            name: 'Steven Moder',
+            username: docsGitHubOwner,
+            mapByEmailAliases: ['java20131114@gmail.com'],
+          },
+        ],
       }),
       GitChangelogMarkdownSection(),
     ],
