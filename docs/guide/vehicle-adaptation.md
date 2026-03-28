@@ -120,6 +120,15 @@ class AbstractVehicleFactory {
   virtual void UpdateCommand(const ChassisCommand *chassis_command) = 0;
   virtual Chassis publish_chassis() = 0;
   virtual void PublishChassisDetail() = 0;
+
+  // 以下为非纯虚方法，有默认实现
+  virtual void PublishChassisDetailSender();
+  virtual void UpdateHeartbeat();
+  virtual void CheckChassisCommunicationFault();
+  virtual void AddSendProtocol();
+  virtual void ClearSendProtocol();
+  virtual bool IsSendProtocolClear();
+  virtual Chassis::DrivingMode Driving_Mode();
 };
 ```
 
@@ -133,20 +142,36 @@ class AbstractVehicleFactory {
 template <typename SensorType>
 class VehicleController {
  public:
-  virtual ErrorCode Init(const VehicleParameter &params,
-                         CanSender<SensorType> *can_sender,
-                         MessageManager<SensorType> *message_manager) = 0;
+  virtual common::ErrorCode Init(
+      const VehicleParameter &params,
+      CanSender<SensorType> *const can_sender,
+      MessageManager<SensorType> *const message_manager) = 0;
   virtual Chassis chassis() = 0;
 
+  // 统一控制入口，内部调用下列 private 方法
+  ErrorCode Update(const ControlCommand &command);
+
+ private:
+  // 以下方法通过 Update() 间接调用
   // 驾驶模式切换
-  virtual ErrorCode EnableAutoMode() = 0;
-  virtual ErrorCode DisableAutoMode() = 0;
+  virtual void EnableAutoMode() = 0;
+  virtual void DisableAutoMode() = 0;
 
   // 执行器控制
   virtual void Brake(double acceleration) = 0;
   virtual void Throttle(double throttle) = 0;
   virtual void Steer(double angle) = 0;
   virtual void Gear(Chassis::GearPosition state) = 0;
+
+  // 生命周期与模式
+  virtual bool Start() = 0;
+  virtual void Stop() = 0;
+  virtual void Emergency() = 0;
+  virtual void Acceleration(double acc) = 0;
+  virtual void EnableSteeringOnlyMode() = 0;
+  virtual void EnableSpeedOnlyMode() = 0;
+  virtual void SetEpbBreak() = 0;
+  virtual void HandleCustomOperation() = 0;
 };
 ```
 
@@ -224,8 +249,8 @@ BU_: ACU VCU
 BO_ 256 Throttle_Command: 8 ACU
  SG_ Throttle_Pedal_Target : 31|16@0+ (0.1,0) [0|100] "%" Vector__XXX
  SG_ Throttle_Acc : 15|10@0+ (0.01,0) [0|10] "m/s^2" Vector__XXX
- SG_ Speed_Target : 23|16@0+ (0.01,0) [0|40.95] "m/s" Vector__XXX
- SG_ Throttle_EN_CTRL : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Speed_Target : 47|12@0+ (0.01,0) [0|40.95] "m/s" Vector__XXX
+ SG_ Throttle_EN_CTRL : 0|1@0+ (1,0) [0|1] "" Vector__XXX
  SG_ Heartbeat_100 : 7|4@0+ (1,0) [0|15] "" Vector__XXX
  SG_ CheckSum_100 : 63|8@0+ (1,0) [0|255] "" Vector__XXX
 ```
@@ -316,8 +341,6 @@ modules/canbus_vehicle/demo/
 │   ├── throttle_report_500.h/.cc  # 反馈协议：油门状态
 │   ├── steering_report_502.h/.cc  # 反馈协议：转向状态
 │   └── ...                        # 其他协议
-└── testdata/
-    └── demo_canbus_conf_test.pb.txt
 ```
 
 ### 各组件关系
@@ -655,22 +678,22 @@ sequenceDiagram
 void Brakecommand101::set_p_brake_pedal_target(uint8_t* data,
                                                 double brake_pedal_target) {
   brake_pedal_target = ProtocolData::BoundedValue(0.0, 100.0, brake_pedal_target);
-  int x = static_cast<int>(brake_pedal_target / 0.100000);  // 物理值 → 原始值
+  int x = brake_pedal_target / 0.100000;  // 物理值 → 原始值
   uint8_t t = 0;
 
   // 按 Motorola 字节序写入 data[3] 和 data[4]
-  t = static_cast<uint8_t>(x & 0xFF);
+  t = x & 0xFF;
   Byte to_set0(data + 4);
   to_set0.set_value(t, 0, 8);
   x >>= 8;
 
-  t = static_cast<uint8_t>(x & 0xFF);
+  t = x & 0xFF;
   Byte to_set1(data + 3);
   to_set1.set_value(t, 0, 8);
 }
 ```
 
-### 信号解码（接收方向）
+### 信号解码（回读验证）
 
 ```cpp
 // 解析刹车减速度

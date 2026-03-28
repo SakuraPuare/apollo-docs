@@ -94,19 +94,22 @@ SimControlManager 是 Dreamview 仿真模式的核心管理器，位于：
 ```
 modules/dreamview/backend/common/sim_control_manager/
 ├── common/
-│   ├── sim_control_gflags.cc    # 仿真控制参数定义
-│   ├── sim_control_util.cc      # 工具函数
-│   └── interpolation_2d.cc      # 二维插值
+│   ├── sim_control_gflags.cc/h    # 仿真控制参数定义
+│   ├── sim_control_util.cc/h      # 工具函数
+│   └── interpolation_2d.cc/h      # 二维插值
 ├── core/
-│   ├── sim_control_base.h       # 抽象基类
-│   ├── sim_control_with_model_base.h  # 带动力学模型的基类
-│   └── dynamic_model_factory.h  # 动力学模型工厂
+│   ├── sim_control_base.cc/h       # 抽象基类
+│   ├── sim_control_with_model_base.cc/h  # 带动力学模型的基类
+│   └── dynamic_model_factory.cc/h  # 动力学模型工厂
 ├── dynamic_model/
 │   └── perfect_control/
-│       └── sim_perfect_control.h  # 完美控制模型
+│       ├── sim_perfect_control.cc/h  # 完美控制模型
+│       └── sim_control_test.cc       # 单元测试
 ├── proto/
-│   └── dynamic_model_conf.proto # 动力学模型配置定义
-└── sim_control_manager.h        # 管理器入口
+│   ├── dynamic_model_conf.proto   # 动力学模型配置定义
+│   ├── fnn_model.proto            # FNN 模型定义
+│   └── sim_control_internal.proto # 仿真控制内部消息定义
+├── sim_control_manager.cc/h       # 管理器入口
 ```
 
 ### 动力学模型体系
@@ -233,9 +236,10 @@ cyber/tools/cyber_recorder/
 ├── player/
 │   ├── player.cc/h          # 回放控制器
 │   ├── play_param.h         # 回放参数结构体
-│   ├── play_task_producer.h # 从 .record 文件读取消息生产任务
-│   ├── play_task_consumer.h # 消费任务并按时间戳发布消息
-│   └── play_task_buffer.h   # 生产者-消费者之间的任务缓冲
+│   ├── play_task.cc/h       # 回放任务定义
+│   ├── play_task_producer.cc/h # 从 .record 文件读取消息生产任务
+│   ├── play_task_consumer.cc/h # 消费任务并按时间戳发布消息
+│   └── play_task_buffer.cc/h   # 生产者-消费者之间的任务缓冲
 ├── spliter.cc/h     # 按时间范围或 channel 切分 record 文件
 ├── recoverer.cc/h   # 修复损坏的 record 文件
 └── info.cc/h        # 查看 record 文件的元信息
@@ -452,7 +456,8 @@ SimulationWorldService 订阅以下 channel：
 | `/apollo/control` | `ControlCommand` | 控制模块 |
 | `/apollo/perception/traffic_light` | `TrafficLightDetection` | 交通灯检测 |
 | `/apollo/monitor` | `MonitorMessage` | 系统监控 |
-| `/apollo/routing_response` | `RoutingResponse` | 路由模块 |
+
+> **注意**：`/apollo/routing_response` 是 SimulationWorldService 的发布（Writer）channel，而非订阅。
 
 ### 数据更新与推送流程
 
@@ -515,7 +520,7 @@ message Scenario {
     ALWAYS_GREEN = 0;  // 常绿
     CYCLICAL = 1;      // 红绿灯循环
   }
-  optional DefaultLightBehavior default_light_behavior = 20;
+  optional DefaultLightBehavior default_light_behavior = 20 [default = ALWAYS_GREEN];
   optional double red_time = 21 [default = 15.0];
   optional double green_time = 22 [default = 13.0];
   optional double yellow_time = 23 [default = 3.0];
@@ -557,6 +562,10 @@ message Scenario {
 ```bash
 --flagfile=/apollo/modules/common/data/global_flagfile.txt
 --static_file_dir=/apollo/modules/dreamview_plus/frontend/dist
+--default_data_collection_config_path=/apollo/modules/dreamview_plus/conf/data_collection_table.pb.txt
+--default_preprocess_config_path=/apollo/modules/dreamview_plus/conf/preprocess_table.pb.txt
+--data_handler_config_path=/apollo/modules/dreamview_plus/conf/data_handler.conf
+--vehicle_data_config_filename=/apollo/modules/dreamview_plus/conf/vehicle_data.pb.txt
 --default_hmi_mode=Default
 --server_ports=8888
 ```

@@ -300,7 +300,7 @@ mainboard [OPTION]...
 选项：
   -h, --help                    帮助信息
   -d, --dag_conf=CONFIG_FILE    DAG 配置文件路径（可多次指定）
-  -p, --process_group=NAME      进程组名称
+  -p, --process_name=NAME       进程组名称
   -s, --sched_name=NAME         调度策略名称
   --plugin=FILE                 插件描述文件路径
   --disable_plugin_autoload     禁用插件自动加载
