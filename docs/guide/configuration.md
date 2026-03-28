@@ -68,9 +68,7 @@ enable_sender_log: false
 
 ```bash
 --flagfile=/apollo/modules/common/data/global_flagfile.txt
---canbus_driver_timeout=10000.0
 --enable_chassis_detail_pub=true
---noreceiver_log
 ```
 
 ::: tip 链式加载
@@ -98,15 +96,15 @@ header:
   frame_id: novatel
 child_frame_id: microphone
 transform:
-  translation:
-    x: 0.0
-    y: 0.0
-    z: 0.0
   rotation:
     x: 0.0
     y: 0.0
     z: 0.0
     w: 1.0
+  translation:
+    x: 0.0
+    y: 0.68
+    z: 0.72
 ```
 
 ### DAG 文件（`.dag`）
@@ -265,9 +263,9 @@ modules/perception/
 ├── camera_detection_single_stage/conf/
 │   └── camera_detection_single_stage_config.pb.txt
 ├── radar_detection/conf/
-│   └── radar_detection_config.pb.txt
+│   └── front_radar_detection_config.pb.txt  # 另有 rear_radar_detection_config.pb.txt
 ├── multi_sensor_fusion/conf/
-│   └── multi_sensor_fusion_conf.pb.txt
+│   └── multi_sensor_fusion_config.pb.txt
 └── data/flag/
     └── perception_common.flag
 ```
@@ -303,12 +301,13 @@ modules/planning/
 
 ```
 modules/control/
-└── conf/
-    ├── control_conf.pb.txt    # 控制器参数（PID、LQR 等）
-    └── control.conf           # flagfile
+└── control_component/
+    └── conf/
+        ├── pipeline.pb.txt        # 控制器参数（PID、LQR 等）
+        └── control.conf           # flagfile
 ```
 
-`control_conf.pb.txt` 中典型的控制器参数：
+`pipeline.pb.txt` 中典型的控制器参数：
 
 ```protobuf
 lat_controller_conf {
@@ -344,6 +343,7 @@ modules/localization/
 modules/audio/
 └── conf/
     ├── audio_conf.pb.txt              # 音频主配置（含 topic_conf）
+    ├── audio.conf                     # flagfile
     └── respeaker_extrinsics.yaml      # 麦克风阵列外参
 ```
 
@@ -378,7 +378,6 @@ modules/audio/
 
 ### 调试技巧
 
-- 使用 `cyber_launch` 的 `--log_dir` 参数指定日志目录，便于排查配置加载问题
-- 通过设置 `--v=4` 提高日志级别，可以看到 flag 的解析过程
+- 日志目录硬编码为 `data/log`，可通过设置 `--v=4` 提高日志级别，查看 flag 的解析过程，便于排查配置加载问题
 - 修改 `.pb.txt` 后无需重新编译，重启模块即可生效
 - 修改 `.proto` 定义后需要重新编译
