@@ -91,8 +91,8 @@ protected:
 | `PathFollowCommandProcessor` | `PathFollowCommand` | `/apollo/external_command/path_follow` | 指定线路行驶（园区） |
 | `SpeedCommandProcessor` | `SpeedCommand` | `/apollo/external_command/speed` | 更改目标速度（园区），直接继承 `CommandProcessorBase` |
 | `ChassisCommandProcessor` | `ChassisCommand` | `/apollo/external_command/chassis` | 自定义底盘命令（园区），直接继承 `CommandProcessorBase` |
-| `PreciseParkingCommandProcessor` | - | - | 精确泊车 |
-| `ZoneCoverCommandProcessor` | `ZoneCoverCommand` | - | 区域覆盖行驶（园区） |
+| `PreciseParkingCommandProcessor` | `PreciseParkingCommand` | `/apollo/external_command/precise_parking` | 精确泊车 |
+| `ZoneCoverCommandProcessor` | `ZoneCoverCommand` | `/apollo/external_command/zone_cover` | 区域覆盖行驶（园区） |
 
 ### ActionCommandProcessor（动作命令处理器）
 
