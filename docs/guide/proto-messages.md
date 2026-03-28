@@ -127,20 +127,20 @@ enum ErrorCode {
 
 ```protobuf
 message Chassis {
-  optional bool engine_started = 1;
-  optional float engine_rpm = 2;
-  optional float speed_mps = 3;           // 车速（米/秒）
-  optional float odometer_m = 4;          // 里程表（米）
-  optional int32 fuel_range_m = 5;        // 续航里程（米）
-  optional float throttle_percentage = 6; // 油门百分比
-  optional float brake_percentage = 7;    // 刹车百分比
-  optional float steering_percentage = 8; // 方向盘转角百分比
-  optional float steering_torque_nm = 9;  // 方向盘扭矩
-  optional bool parking_brake = 10;       // 驻车制动
-  optional DrivingMode driving_mode = 11;
-  optional ErrorCode error_code = 12;
-  optional GearPosition gear_location = 13;
-  optional Header header = 14;
+  optional bool engine_started = 3;
+  optional float engine_rpm = 4;
+  optional float speed_mps = 5;           // 车速（米/秒）
+  optional float odometer_m = 6;          // 里程表（米）
+  optional int32 fuel_range_m = 7;        // 续航里程（米）
+  optional float throttle_percentage = 8; // 油门百分比
+  optional float brake_percentage = 9;    // 刹车百分比
+  optional float steering_percentage = 11; // 方向盘转角百分比
+  optional float steering_torque_nm = 12;  // 方向盘扭矩
+  optional bool parking_brake = 13;       // 驻车制动
+  optional DrivingMode driving_mode = 14;
+  optional ErrorCode error_code = 15;
+  optional GearPosition gear_location = 16;
+  optional Header header = 17;
   // ... signal, wheel_speed, battery_soc_percentage 等
 }
 ```
@@ -182,21 +182,21 @@ enum GearPosition {
 ```protobuf
 message ControlCommand {
   optional Header header = 1;
-  optional double throttle = 2;         // 油门指令
-  optional double brake = 3;            // 刹车指令
-  optional double steering_rate = 4;    // 方向盘转速
-  optional double steering_target = 5;  // 方向盘目标角度
-  optional bool parking_brake = 6;      // 驻车制动
-  optional double speed = 7;            // 目标速度
-  optional double acceleration = 8;     // 目标加速度
-  optional GearPosition gear_location = 10;
-  optional Debug debug = 11;
-  optional Signal signal = 12;
-  optional LatencyStats latency_stats = 13;
-  optional PadMessage pad_msg = 14;
-  optional EngageAdvice engage_advice = 15;
-  optional bool is_in_safe_mode = 16;
-  optional TurnSignal turnsignal = 17;
+  optional double throttle = 3;         // 油门指令
+  optional double brake = 4;            // 刹车指令
+  optional double steering_rate = 6;    // 方向盘转速
+  optional double steering_target = 7;  // 方向盘目标角度
+  optional bool parking_brake = 8;      // 驻车制动
+  optional double speed = 9;            // 目标速度
+  optional double acceleration = 10;    // 目标加速度
+  optional GearPosition gear_location = 20;
+  optional Debug debug = 22;
+  optional Signal signal = 23;
+  optional LatencyStats latency_stats = 24;
+  optional PadMessage pad_msg = 25;
+  optional EngageAdvice engage_advice = 26;
+  optional bool is_in_safe_mode = 27;
+  optional TurnSignal turnsignal = 21;
 }
 ```
 
@@ -290,9 +290,9 @@ enum Type {
 
 ```protobuf
 message TrafficLightDetection {
-  optional Header header = 1;
-  repeated TrafficLight traffic_light = 2;
-  optional bool contain_lights = 3;
+  optional Header header = 2;
+  repeated TrafficLight traffic_light = 1;
+  optional bool contain_lights = 4;
 }
 
 message TrafficLight {
@@ -321,10 +321,11 @@ message TrafficLight {
 message PredictionObstacles {
   optional Header header = 1;
   repeated PredictionObstacle prediction_obstacle = 2;
-  optional double start_timestamp = 3;
-  optional double end_timestamp = 4;
-  optional Intent intent = 5;
-  optional Scenario scenario = 6;
+  optional ErrorCode perception_error_code = 3;
+  optional double start_timestamp = 4;
+  optional double end_timestamp = 5;
+  optional Intent intent = 6;
+  optional Scenario scenario = 7;
 }
 
 message PredictionObstacle {
@@ -357,15 +358,15 @@ message ADCTrajectory {
   optional Header header = 1;
   optional double total_path_length = 2;    // 总路径长度
   optional double total_path_time = 3;      // 总路径时间
-  repeated TrajectoryPoint trajectory_point = 4; // 轨迹点序列
-  optional EStop estop = 5;                 // 紧急停车
-  repeated PathPoint path_point = 6;
-  optional bool is_replan = 7;              // 是否重新规划
+  repeated TrajectoryPoint trajectory_point = 12; // 轨迹点序列
+  optional EStop estop = 6;                 // 紧急停车
+  repeated PathPoint path_point = 13;
+  optional bool is_replan = 9;              // 是否重新规划
   optional apollo.planning_internal.Debug debug = 8; // 调试信息
-  optional LatencyStats latency_stats = 10;
-  optional RightOfWayStatus right_of_way_status = 13;
+  optional LatencyStats latency_stats = 15;
+  optional RightOfWayStatus right_of_way_status = 17;
   optional DecisionResult decision = 14;   // 决策信息
-  optional EngageAdvice engage_advice = 15;
+  optional EngageAdvice engage_advice = 19;
   optional apollo.common.Header routing_header = 16;
   // ... critical_region, trajectory_type 等
 }
@@ -382,7 +383,7 @@ message EStop {
 message PlanningCommand {
   optional Header header = 1;
   optional int64 command_id = 2;
-  optional LaneFollowCommand lane_follow_command = 3;
+  optional RoutingResponse lane_follow_command = 3;
   optional double target_speed = 4;
   optional bool is_motion_command = 5;
   optional ParkingCommand parking_command = 6;
@@ -418,7 +419,7 @@ message RoutingResponse {
   repeated RoadSegment road = 2;                   // 路径道路序列
   optional Measurement measurement = 3;     // 路径度量
   optional RoutingRequest routing_request = 4;
-  optional MapVersion map_version = 5;
+  optional bytes map_version = 5;
   optional StatusPb status = 6;
 }
 ```
@@ -508,8 +509,9 @@ message PointCloud {
 message ContiRadar {
   optional Header header = 1;
   repeated ContiRadarObs contiobs = 2;       // 大陆雷达障碍物
-  map<int32, RadarObstacle> radar_obstacle = 3;
-  optional ErrorCode error_code = 4;
+  optional RadarState_201 radar_state = 3;
+  optional ClusterListStatus_600 cluster_list_status = 4;
+  optional ObjectListStatus_60A object_list_status = 5;
 }
 ```
 
@@ -519,11 +521,12 @@ message ContiRadar {
 message Image {
   optional Header header = 1;
   optional string frame_id = 2;
-  optional bytes data = 3;            // 图像数据
-  optional string encoding = 4;       // 编码格式
-  optional double measurement_time = 5;
-  optional uint32 width = 6;
-  optional uint32 height = 7;
+  optional double measurement_time = 3;
+  optional uint32 height = 4;
+  optional uint32 width = 5;
+  optional string encoding = 6;       // 编码格式
+  optional uint32 step = 7;           // 每行字节数
+  optional bytes data = 8;            // 图像数据
 }
 ```
 
@@ -544,9 +547,9 @@ message HMIStatus {
   optional Header header = 1;
   repeated string modes = 2;
   optional string current_mode = 3;
-  map<string, bool> maps = 4;
+  repeated string maps = 4;
   optional string current_map = 5;
-  map<string, bool> vehicles = 6;
+  repeated string vehicles = 6;
   optional string current_vehicle = 7;
   map<string, bool> modules = 8;
   map<string, ComponentStatus> monitored_components = 9;
@@ -604,7 +607,7 @@ Guardian 模块是 Apollo 的安全守护层，在系统异常时接管控制。
 ```protobuf
 message GuardianCommand {
   optional Header header = 1;
-  optional Action action = 2;   // 守护动作
+  optional ControlCommand control_command = 2;
 }
 ```
 
