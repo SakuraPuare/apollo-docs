@@ -344,6 +344,37 @@ class PiecewiseJerkSpeedNonlinearOptimizer : public SpeedOptimizer {
 - `OptimizeByQP`：QP 热启动
 - `OptimizeByNLP`：NLP 精细优化
 
+### 5.7 HorizonOptimizer — 预测地平线优化器
+
+```cpp
+class HorizonOptimizer : public SpeedOptimizer {
+  bool Init(const string& config_dir, const string& name,
+            const shared_ptr<DependencyInjector>& injector) override;
+  const string& Name() const override;
+  void Reset();
+ private:
+  Status Process(const PathData&, const TrajectoryPoint&, SpeedData*) override;
+  vector<pair<double,double>> SplitHorizon(double total_time, double horizon_length);
+  vector<SpeedData> GenerateCandidateTrajectories(const PathData&,
+      const TrajectoryPoint&, size_t num_candidates);
+  double EvaluateTrajectoryCost(const SpeedData&, const PredictionData&, const PathData&);
+  double ComputeCollisionRisk(const SpeedData&, const PredictionData&);
+  SpeedData AdjustForInteraction(const SpeedData&, const PredictionData&);
+  SpeedData SmoothTrajectory(const SpeedData&);
+  bool ValidateTrajectory(const SpeedData&);
+};
+```
+
+- **多模态轨迹联合优化器**，考虑预测不确定性和多智能体交互
+- 优化目标：`J = w1*J_safety + w2*J_comfort + w3*J_efficiency + w4*J_smoothness`
+- 分层优化：策略选择(DP) → 轨迹优化(QP) → 交互调整 → 平滑后处理
+- `SplitHorizon`：将预测地平线分段（近期细粒度，远期粗粒度）
+- `GenerateCandidateTrajectories`：生成保守/激进/中庸/绕行候选轨迹
+- `EvaluateTrajectoryCost`：多目标成本评估（碰撞风险+舒适度+效率+平滑度）
+- `ComputeCollisionRisk`：TTC 碰撞风险计算
+- `AdjustForInteraction`：跟车/让行/超车/并行交互调整
+- `PredictionData`：封装周围车辆预测轨迹数据结构
+
 ## 6. 开放空间任务
 
 ### 6.1 ROI 决策
@@ -623,3 +654,5 @@ SpeedBoundsDecider → StGraphData → SpeedOptimizer → SpeedData
 | `StGraphPoint` | ST 图节点，存储 s/t/v/a 状态和代价 |
 | `SpeedPlanner` | 速度规划器，生成平滑的减速速度剖面 |
 | `PiecewiseJerkSpeedNonlinearIpoptInterface` | 分段 Jerk 速度非线性优化 IPOPT 接口 |
+| `HorizonOptimizer` | 预测地平线优化器，多模态轨迹联合优化 |
+| `PredictionData` | 预测数据结构，封装周围车辆预测轨迹 |
