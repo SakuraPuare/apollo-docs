@@ -251,6 +251,7 @@ export default withMermaid(defineConfig({
             { text: 'Prediction 预测', link: '/modules/prediction/' },
             { text: 'Planning 规划', link: '/modules/planning/' },
             { text: 'Planning 决策逻辑', link: '/modules/planning/decision' },
+            { text: 'Planning Component/PncMap', link: '/modules/planning/component-and-pncmap' },
             { text: 'Control 控制', link: '/modules/control/' },
           ],
         },
