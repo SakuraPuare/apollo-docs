@@ -253,6 +253,7 @@ export default withMermaid(defineConfig({
             { text: 'Planning 决策逻辑', link: '/modules/planning/decision' },
             { text: 'Planning Component/PncMap', link: '/modules/planning/component-and-pncmap' },
             { text: 'Control 控制', link: '/modules/control/' },
+            { text: 'Control 组件源码', link: '/modules/control/control-component' },
           ],
         },
         {
