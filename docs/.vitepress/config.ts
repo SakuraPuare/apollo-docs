@@ -258,6 +258,7 @@ export default withMermaid(defineConfig({
             { text: 'Planning 格栅规划器', link: '/modules/planning/lattice-planner' },
             { text: 'Planning 导航规划器', link: '/modules/planning/navi-planner' },
             { text: 'Planning 交通规则', link: '/modules/planning/traffic-rules' },
+            { text: 'Planning 场景机', link: '/modules/planning/scenarios' },
             { text: 'Control 控制', link: '/modules/control/' },
             { text: 'Control 组件源码', link: '/modules/control/control-component' },
             { text: 'Control 扩展基类', link: '/modules/control/task-base-extend' },
