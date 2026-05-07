@@ -656,3 +656,4 @@ SpeedBoundsDecider → StGraphData → SpeedOptimizer → SpeedData
 | `PiecewiseJerkSpeedNonlinearIpoptInterface` | 分段 Jerk 速度非线性优化 IPOPT 接口 |
 | `HorizonOptimizer` | 预测地平线优化器，多模态轨迹联合优化 |
 | `PredictionData` | 预测数据结构，封装周围车辆预测轨迹 |
+| `PathTimeHeap` | ST 图搜索最小堆优先队列（emplace/pop/update O(log n)） |

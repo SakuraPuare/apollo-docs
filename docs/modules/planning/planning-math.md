@@ -568,3 +568,27 @@ Lattice 轨迹生成:
 
 - `QuinticSpiralPath` 的扩展版本，额外提供对设计参数的解析导数
 - 用于螺旋线平滑器的梯度优化
+
+### 10.6 PiecewiseLinearProblem — 分段线性优化
+
+```cpp
+class PiecewiseLinearProblem {
+  PiecewiseLinearProblem(int num_of_knots, double delta_s, array<double,3> x_init);
+  void set_x_bounds(vector<pair<double,double>>);
+  void set_dx_bounds(vector<pair<double,double>>);
+  void set_ddx_bounds(vector<pair<double,double>>);
+  void set_weight_x(double);
+  void set_weight_dx(double);
+  void set_weight_ddx(double);
+  void set_x_ref(double weight, vector<double> x_ref);
+  void set_end_state_ref(array<double,3> weight, array<double,3> end_state);
+  virtual bool Optimize(int max_iter);
+  vector<double> opt_x() const;
+  vector<double> opt_dx() const;
+  vector<double> opt_ddx() const;
+};
+```
+
+- 与 PiecewiseJerkProblem 类似，但直接对位置变量做线性优化
+- 适用于不需要高阶导数约束的简单场景
+- 使用线性规划（LP）而非二次规划（QP）

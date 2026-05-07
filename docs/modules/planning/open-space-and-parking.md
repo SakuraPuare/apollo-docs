@@ -1357,7 +1357,49 @@ enum DualVariableMode       { DUAL_VARIABLE_IPOPT=0; DUAL_VARIABLE_IPOPTQP=1; DU
 - `modules/planning/planning_open_space/proto/planner_open_space_config.proto`
 - `modules/planning/park_data_center/{park_data_center, nudge_info}.{h,cc}`
 
+## 10. OpenSpaceTrajectoryStitcher 开放空间轨迹拼接器
 
+```cpp
+class OpenSpaceTrajectoryStitcher {
+ public:
+  explicit OpenSpaceTrajectoryStitcher(const PlannerOpenSpaceConfig& config);
+  bool PartitionByGear(const HybridAStartResult&, vector<HybridAStartResult>*);
+  size_t IdentifyGearSwitchPoints(const vector<TrajectoryPoint>&, vector<GearSwitchPoint>*) const;
+  bool StitchSegments(const vector<HybridAStartResult>&, const StitchingStrategy&, DiscretizedTrajectory*);
+  bool SmoothGearSwitch(const vector<TrajectoryPoint>&, size_t, vector<TrajectoryPoint>*);
+  bool Process(const HybridAStartResult&, double init_v, double init_a,
+               const StitchingStrategy&, DiscretizedTrajectory*);
+  bool ValidateStitchedTrajectory(const DiscretizedTrajectory&) const;
+  vector<double> ComputeAccumulatedS(const vector<double>& x, const vector<double>& y) const;
+  bool CreateTrajectoryPointsFromHybridAResult(const HybridAStartResult&, vector<TrajectoryPoint>*);
+  bool AdjustSegmentEndpoints(HybridAStartResult*, HybridAStartResult*);
+  vector<bool> ExtractGearSequence(const vector<double>& velocities) const;
+  bool GenerateSCurveSpeedProfile(double init_v, double end_v, double distance,
+                                   vector<pair<double,double>>*);
+};
+```
+
+**职责**：拼接 Hybrid A* 生成的多档位轨迹，处理前进/倒车切换的平滑过渡。
+
+**拼接策略枚举**：
+
+```cpp
+enum class StitchingStrategy {
+  kVelocitySmooth = 0,   // 速度平滑拼接（舒适优先）
+  kGearConsistent = 1,   // 档位一致拼接（安全优先，切换点速度为零）
+  kHybrid = 2            // 混合策略（自动选择）
+};
+```
+
+**核心流程**：
+
+1. `PartitionByGear`：按档位分割 Hybrid A* 轨迹
+2. `IdentifyGearSwitchPoints`：识别档位切换点
+3. `StitchSegments`：拼接轨迹段，统一时间坐标
+4. `SmoothGearSwitch`：S 曲线速度平滑（加加速度受限）
+5. `ValidateStitchedTrajectory`：验证位置/速度/加速度连续性
+
+**与标准 TrajectoryStitcher 的区别**：标准版处理规划周期间的轨迹衔接，本类处理单次规划内的多档位轨迹拼接。
 
 
 
