@@ -261,6 +261,7 @@ export default withMermaid(defineConfig({
             { text: 'Control 控制', link: '/modules/control/' },
             { text: 'Control 组件源码', link: '/modules/control/control-component' },
             { text: 'Control 扩展基类', link: '/modules/control/task-base-extend' },
+            { text: 'Control 控制器', link: '/modules/control/controllers' },
           ],
         },
         {
