@@ -264,6 +264,7 @@ export default withMermaid(defineConfig({
             { text: 'Planning 数学库', link: '/modules/planning/planning-math' },
             { text: 'Planning 学习型组件', link: '/modules/planning/planning-learning-based' },
             { text: 'Planning 补充组件', link: '/modules/planning/planning-supplementary' },
+            { text: 'Planning 配置参考', link: '/modules/planning/planning-config-reference' },
             { text: 'Control 控制', link: '/modules/control/' },
             { text: 'Control 组件源码', link: '/modules/control/control-component' },
             { text: 'Control 扩展基类', link: '/modules/control/task-base-extend' },
