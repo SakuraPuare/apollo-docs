@@ -541,3 +541,30 @@ Lattice 轨迹生成:
 | 离散点平滑（简单） | CosThetaSmoother | 凸问题，快速 |
 | 离散点平滑（复杂） | FemPosDeviationSmoother | 支持非凸和障碍物约束 |
 | 曲率计算 | CurveMath | 解析公式，精度高 |
+
+## 10. 优化器接口类
+
+### 10.1 CosThetaIpoptInterface
+
+- IPOPT 非线性优化接口，用于 CosThetaSmoother
+- 实现 `TNLP` 接口，定义 cos-theta 目标函数和边界约束
+
+### 10.2 FemPosDeviationIpoptInterface
+
+- IPOPT 非线性优化接口，用于 FemPosDeviationSmoother 的 NLP 模式
+- 最小化有限元位置偏差
+
+### 10.3 FemPosDeviationOsqpInterface
+
+- OSQP 二次规划接口，用于 FemPosDeviationSmoother 的 QP 模式
+- 将位置偏差问题转化为 QP 形式
+
+### 10.4 FemPosDeviationSqpOsqpInterface
+
+- 序列二次规划（SQP）接口，用于 FemPosDeviationSmoother 的 SQP 模式
+- 迭代线性化 + OSQP 求解
+
+### 10.5 QuinticSpiralPathWithDerivation
+
+- `QuinticSpiralPath` 的扩展版本，额外提供对设计参数的解析导数
+- 用于螺旋线平滑器的梯度优化

@@ -616,7 +616,10 @@ SpeedBoundsDecider → StGraphData → SpeedOptimizer → SpeedData
 
 | 类 | 说明 |
 |---|---|
-| `STObstaclesProcessor` | ST 障碍物处理器，将障碍物投影到 ST 空间并生成约束 |
-| `STDrivingLimits` | ST 驾驶限制，计算速度/加速度约束对应的 ST 边界 |
-| `STGuideLine` | ST 引导线，生成理想的 ST 轨迹引导优化 |
+| `StObstaclesProcessor` | ST 障碍物处理器，将障碍物投影到 ST 空间并生成约束 |
+| `StDrivingLimits` | ST 驾驶限制，计算速度/加速度约束对应的 ST 边界 |
+| `StGuideLine` | ST 引导线，生成理想的 ST 轨迹引导优化 |
 | `StBoundaryMapper` | ST 边界映射器，将障碍物的 SL 边界映射到 ST 空间 |
+| `StGraphPoint` | ST 图节点，存储 s/t/v/a 状态和代价 |
+| `SpeedPlanner` | 速度规划器，生成平滑的减速速度剖面 |
+| `PiecewiseJerkSpeedNonlinearIpoptInterface` | 分段 Jerk 速度非线性优化 IPOPT 接口 |
