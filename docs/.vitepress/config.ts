@@ -271,6 +271,7 @@ export default withMermaid(defineConfig({
             { text: 'Control 控制器', link: '/modules/control/controllers' },
             { text: 'Control 算法基础组件', link: '/modules/control/controller-base-common' },
             { text: 'Control 子模块', link: '/modules/control/control-submodules' },
+            { text: 'Control 配置参考', link: '/modules/control/control-config-reference' },
           ],
         },
         {
