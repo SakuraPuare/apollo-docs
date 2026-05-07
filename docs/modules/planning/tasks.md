@@ -600,3 +600,23 @@ SpeedBoundsDecider → StGraphData → SpeedOptimizer → SpeedData
 - 开放空间任务大量使用后台线程（`GeneratePathThread`/`GenerateTrajectoryThread`）
 - 通过 `LoadResult`/`ReuseLastFrameResult` 与主线程同步
 - 支持 `Stop`/`Restart` 生命周期管理
+
+## 11. 内部辅助类
+
+### 11.1 Road Graph 道路图优化器
+
+| 类 | 说明 |
+|---|---|
+| `DpRoadGraph` | 动态规划道路图搜索，在参考线上采样候选点并用 DP 找最优路径 |
+| `WaypointSampler` | 航路点采样器，在参考线上按横向偏移采样候选航路点 |
+| `TrajectoryCost` | 轨迹代价计算，评估路径的平滑性和障碍物距离 |
+| `ComparableCost` | 可比较代价结构，支持代价的加权比较和排序 |
+
+### 11.2 ST Bounds Decider 辅助类
+
+| 类 | 说明 |
+|---|---|
+| `STObstaclesProcessor` | ST 障碍物处理器，将障碍物投影到 ST 空间并生成约束 |
+| `STDrivingLimits` | ST 驾驶限制，计算速度/加速度约束对应的 ST 边界 |
+| `STGuideLine` | ST 引导线，生成理想的 ST 轨迹引导优化 |
+| `StBoundaryMapper` | ST 边界映射器，将障碍物的 SL 边界映射到 ST 空间 |
