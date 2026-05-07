@@ -184,6 +184,7 @@ export default withMermaid(defineConfig({
           items: [
             { text: 'Docker 开发环境', link: '/guide/docker-env' },
             { text: '脚本与工具链', link: '/guide/scripts' },
+            { text: '环境初始化脚本', link: '/guide/init-scripts' },
             { text: '数据采集模块', link: '/guide/data-collection' },
           ],
         },
