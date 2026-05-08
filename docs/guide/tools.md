@@ -1,6 +1,69 @@
 ---
-title: 数据采集模块 (collection/)
+title: Docker 开发环境
 ---
+
+# Docker 开发环境
+
+## 概述
+
+Apollo 的开发环境完全基于 Docker 容器化方案，通过一套脚本驱动的构建体系管理镜像生命周期。整个体系不依赖 docker-compose，而是由独立的 Dockerfile 加上 Shell 编排脚本组成。
+
+### 镜像层级
+
+Apollo 定义了四个官方镜像阶段，按依赖关系逐层叠加：
+
+| 阶段 | 用途 |
+|------|------|
+| `base` | NVIDIA CUDA 基础层，安装 cuDNN 和 TensorRT |
+| `cyber` | CyberRT 开发环境，包含 Bazel、protobuf、Fast-RTPS 等 |
+| `dev` | 完整开发环境，在 cyber 基础上叠加感知、ML 框架、可视化工具等依赖 |
+| `runtime` | 精简运行时镜像，以运行依赖为主 |
+
+此外，`standalone` 为独立构建的特殊用途镜像，将编译产物和模型数据一并打包，拥有单独的构建脚本。
+
+### Dockerfile 命名规范
+
+```
+[prefix_]<stage>.<arch>.<gpu>.dockerfile
+```
+
+- `arch`：`x86_64` 或 `aarch64`
+- `gpu`：`nvidia` 或 `amd`
+
+例如：`dev.x86_64.nvidia.dockerfile`、`cyber.x86_64.amd.dockerfile`
+
+## 配置选项
+
+### base 阶段构建参数
+
+| 参数 | 说明 |
+|------|------|
+| `BASE_IMAGE` | 基础 CUDA devel 镜像 |
+| `CUDA_LITE` | CUDA 精简版本号 |
+| `CUDNN_VERSION` | cuDNN 版本 |
+| `TENSORRT_VERSION` | TensorRT 版本 |
+
+### dev 镜像包含的主要组件
+
+- 感知库：OpenCV、PCL、激光雷达驱动
+- 可视化工具（Dreamview 依赖）
+- 机器学习框架
+
+这些依赖通过 `docker/build/installers/` 下的安装脚本分模块管理，cyber 阶段和 dev 阶段均使用此机制。
+
+### GPU 类型自动检测
+
+`docker/scripts/docker_base.sh` 提供所有脚本共用的基础函数，包括：
+
+- 自动检测宿主机 GPU 类型（NVIDIA / AMD）
+- 设置镜像名称和 tag
+- 管理容器命名
+- 处理卷挂载逻辑
+
+无需手动指定 GPU 类型，脚本会根据检测结果选择对应的 Dockerfile 和运行时参数。
+
+title: 脚本与工具链
+title: "Init Scripts 开发环境脚本解析"
 
 # 数据采集模块 (collection/)
 
@@ -63,63 +126,6 @@ title: 数据采集模块 (collection/)
 | `tools` | 开发与调试工具集 |
 | `contrib` | 社区贡献模块 |
 
----
-
-## 使用方法
-
-### 目录结构
-
-每个模块目录的结构统一如下：
-
-```
-collection/
-└── <module-name>/
-    ├── BUILD          # Bazel 构建配置
-    ├── cyberfile.xml  # 包清单（依赖声明）
-    └── README.md      # 模块说明文档
-```
-
-### 查看模块依赖
-
-通过 `cyberfile.xml` 可以查看某个模块的完整依赖树：
-
-```bash
-cat collection/<module-name>/cyberfile.xml
-```
-
-### 使用 Bazel 构建指定模块
-
-```bash
-# 使用 buildtool 构建（推荐）
-buildtool build --packages collection/<module-name>
-
-# 使用 Bazel 直接构建
-bazel build //collection/<module-name>/...
-
-# 构建所有模块
-bazel build //collection/...
-```
-
-### 数据记录（smart-recorder）
-
-`smart-recorder` 模块依赖 `apollo-data`，用于按策略智能录制传感器和系统数据：
-
-```bash
-# 启动智能录制器
-python3 /apollo/scripts/record_message.py
-```
-
-### 传感器数据采集（drivers）
-
-`drivers` 模块负责对接各类传感器硬件，采集原始数据并发布到 CyberRT 话题：
-
-```bash
-# 启动激光雷达驱动（以 Velodyne 为例）
-cyber_launch start modules/drivers/lidar/velodyne/launch/velodyne128.launch
-```
-
----
-
 ## 配置选项
 
 ### cyberfile.xml 字段说明
@@ -159,16 +165,6 @@ package(default_visibility = ["//visibility:public"])
 apollo_package()
 ```
 
----
-
-## 常见问题
-
-**Q: `collection/` 目录和 `modules/` 目录有什么区别？**
-
-`collection/` 是元数据层，只包含包清单和构建入口，不含实现代码。实际的功能实现位于 `modules/` 对应的子目录中。`collection/` 的作用是统一管理模块的版本和依赖关系，便于包管理工具解析。
-
----
-
 **Q: 如何添加一个新模块到 collection？**
 
 在 `collection/` 下新建模块目录，并创建以下三个文件：
@@ -177,25 +173,9 @@ apollo_package()
 2. `BUILD` — 声明 Bazel 构建目标或别名
 3. `README.md` — 简要说明模块用途
 
----
-
-**Q: `smart-recorder` 和普通的 `cyber_recorder` 有什么区别？**
-
-`cyber_recorder` 是全量录制工具，会记录所有话题的数据。`smart-recorder` 基于触发策略（如碰撞事件、异常检测）进行选择性录制，依赖 `apollo-data` 包提供的数据管理能力，更适合在车端长时间运行时节省存储空间。
-
----
-
 **Q: `canbus` 模块采集哪些数据？**
 
 `canbus` 模块通过 CAN 总线与车辆底盘通信，采集并发布车速、转向角、油门/制动状态、档位等底盘信息，同时接收控制模块下发的控制指令。
-
----
-
-**Q: `v2x` 模块的数据来源是什么？**
-
-`v2x`（Vehicle-to-Everything）模块通过路侧单元（RSU）或云端平台接收交通信号灯状态、道路事件、其他车辆位置等协同信息，并将其融合到 Apollo 的感知和规划流程中。
-
----
 
 **Q: 构建时提示找不到依赖包怎么办？**
 
