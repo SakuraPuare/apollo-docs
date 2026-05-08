@@ -100,7 +100,7 @@ export default withMermaid(defineConfig({
             text: '规划与控制',
             items: [
               { text: 'Planning 总览', link: '/modules/planning/' },
-              { text: 'Planning 架构与机制', link: '/modules/planning/architecture/component-and-pncmap' },
+              { text: 'Planning 系统阐述', link: '/modules/planning/architecture/decision' },
               { text: 'Planning 源码解析', link: '/modules/planning/source/reference-line' },
               { text: 'Control 总览', link: '/modules/control/' },
               { text: 'Control 源码解析', link: '/modules/control/source/controllers' },
@@ -258,21 +258,21 @@ export default withMermaid(defineConfig({
           ],
         },
         {
-          text: '架构与机制',
+          text: '系统阐述',
           collapsed: false,
           items: [
-            { text: '组件入口与 PncMap', link: '/modules/planning/architecture/component-and-pncmap' },
-            { text: '接口层设计', link: '/modules/planning/architecture/interface-base' },
-            { text: 'Planner 规划器', link: '/modules/planning/architecture/planners' },
             { text: '决策机制', link: '/modules/planning/architecture/decision' },
-            { text: '配置参考', link: '/modules/planning/architecture/config-reference' },
-            { text: '路径工具类', link: '/modules/planning/architecture/path-util' },
           ],
         },
         {
           text: '源码解析',
           collapsed: false,
           items: [
+            { text: '组件入口与 PncMap', link: '/modules/planning/source/component-and-pncmap' },
+            { text: '接口层设计', link: '/modules/planning/source/interface-base' },
+            { text: 'Planner 规划器', link: '/modules/planning/source/planners' },
+            { text: '配置参考', link: '/modules/planning/source/config-reference' },
+            { text: '路径工具类', link: '/modules/planning/source/path-util' },
             { text: '参考线', link: '/modules/planning/source/reference-line' },
             { text: '场景机', link: '/modules/planning/source/scenarios' },
             { text: '停车标志场景阶段', link: '/modules/planning/source/scenario-stages-stop-sign' },
@@ -289,6 +289,7 @@ export default withMermaid(defineConfig({
             { text: '兜底与倒车路径任务', link: '/modules/planning/source/task-fallback-reverse-path' },
             { text: 'RSS 安全距离决策器', link: '/modules/planning/source/task-rss-decider' },
             { text: '规则停车决策器', link: '/modules/planning/source/task-rule-based-stop-decider' },
+            { text: '障碍物绕行决策器', link: '/modules/planning/source/task-obstacle-nudge-decider' },
             { text: 'ST 图速度优化器', link: '/modules/planning/source/st-graph-optimizer' },
             { text: '交通规则', link: '/modules/planning/source/traffic-rules' },
             { text: '开放空间与泊车', link: '/modules/planning/source/open-space' },
@@ -319,18 +320,12 @@ export default withMermaid(defineConfig({
           ],
         },
         {
-          text: '架构与机制',
-          collapsed: false,
-          items: [
-            { text: '组件源码', link: '/modules/control/architecture/control-component' },
-            { text: '子模块', link: '/modules/control/architecture/control-submodules' },
-            { text: '配置参考', link: '/modules/control/architecture/config-reference' },
-          ],
-        },
-        {
           text: '源码解析',
           collapsed: false,
           items: [
+            { text: '组件源码', link: '/modules/control/source/control-component' },
+            { text: '子模块', link: '/modules/control/source/control-submodules' },
+            { text: '配置参考', link: '/modules/control/source/config-reference' },
             { text: '控制器', link: '/modules/control/source/controllers' },
             { text: '算法基础组件', link: '/modules/control/source/controller-base-common' },
             { text: '扩展基类', link: '/modules/control/source/task-base-extend' },
