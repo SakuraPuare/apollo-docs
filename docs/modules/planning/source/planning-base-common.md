@@ -608,3 +608,171 @@ class SpeedProfileGenerator {
                               ▼
                          ControlCommand
 ```
+
+## 13. TrajectoryStitcher — 轨迹拼接器
+
+> 源码位置：`modules/planning/planning_base/common/trajectory_stitcher.h/.cc`
+
+### 13.1 模块定位
+
+TrajectoryStitcher 负责在相邻规划周期之间进行**轨迹衔接**。每个规划周期开始时，它决定是从上一周期的轨迹中截取一段作为本周期的起点（stitching），还是从当前车辆状态重新规划（reinit）。这是保证规划连续性和平滑性的关键组件。
+
+### 13.2 类声明
+
+```cpp
+class TrajectoryStitcher {
+ public:
+  TrajectoryStitcher() = delete;
+
+  static void TransformLastPublishedTrajectory(
+      const double x_diff, const double y_diff, const double theta_diff,
+      PublishableTrajectory* prev_trajectory);
+
+  static std::vector<common::TrajectoryPoint> ComputeStitchingTrajectory(
+      const canbus::Chassis& vehicle_chassis,
+      const common::VehicleState& vehicle_state,
+      const double current_timestamp, const double planning_cycle_time,
+      const size_t preserved_points_num, const bool replan_by_offset,
+      const PublishableTrajectory* prev_trajectory,
+      std::string* replan_reason,
+      const control::ControlInteractiveMsg& control_interactive_msg);
+
+  static std::vector<common::TrajectoryPoint> ComputeReinitStitchingTrajectory(
+      const double planning_cycle_time,
+      const common::VehicleState& vehicle_state);
+
+  static bool need_replan_by_necessary_check(
+      const common::VehicleState& vehicle_state,
+      const double current_timestamp,
+      const PublishableTrajectory* prev_trajectory,
+      std::string* replan_reason, size_t* time_matched_index);
+
+  static bool need_replan_by_control_interactive(
+      const double current_timestamp, std::string* replan_reason,
+      const control::ControlInteractiveMsg& control_interactive_msg);
+
+  static std::vector<common::TrajectoryPoint>
+  ComputeControlInteractiveStitchingTrajectory(
+      const double planning_cycle_time,
+      const common::VehicleState& vehicle_state,
+      const common::TrajectoryPoint& time_match_point,
+      const control::ControlInteractiveMsg& control_interactive_msg);
+
+ private:
+  static std::pair<double, double> ComputePositionProjection(
+      const double x, const double y,
+      const common::TrajectoryPoint& matched_trajectory_point);
+
+  static common::TrajectoryPoint ComputeTrajectoryPointFromVehicleState(
+      const double planning_cycle_time,
+      const common::VehicleState& vehicle_state);
+};
+```
+
+所有方法均为 `static`，该类不可实例化（`delete` 默认构造）。
+
+### 13.3 核心函数
+
+#### ComputeStitchingTrajectory()
+
+```cpp
+std::vector<TrajectoryPoint> TrajectoryStitcher::ComputeStitchingTrajectory(
+    const canbus::Chassis& vehicle_chassis, const VehicleState& vehicle_state,
+    const double current_timestamp, const double planning_cycle_time,
+    const size_t preserved_points_num, const bool replan_by_offset,
+    const PublishableTrajectory* prev_trajectory, std::string* replan_reason,
+    const control::ControlInteractiveMsg& control_interactive_msg) {
+  // 1. 必要性检查（非自动驾驶、无前序轨迹、时间越界）
+  if (need_replan_by_necessary_check(...)) return ComputeReinitStitchingTrajectory(...);
+  // 2. 档位切换检查（N→D 时重规划）
+  if (gear changed N→D) return ComputeReinitStitchingTrajectory(...);
+  // 3. 控制交互消息检查
+  if (need_replan_by_control_interactive(...))
+    return ComputeControlInteractiveStitchingTrajectory(...);
+  // 4. 偏移量检查（横向/纵向/时间偏差超阈值）
+  if (replan_by_offset && (lat/lon/time diff > threshold))
+    return ComputeReinitStitchingTrajectory(...);
+  // 5. 正常拼接：截取 [matched_index - preserved_points_num, forward_time_index]
+  //    并将 s 和 relative_time 归零到拼接段末尾
+  return stitching_trajectory;
+}
+```
+
+- **输入**：底盘状态、车辆状态、当前时间戳、规划周期、保留点数、上一轨迹、控制交互消息
+- **输出**：拼接轨迹点序列（正常情况多个点，重规划时仅 1 个点）
+- **关键逻辑**：按优先级依次检查 4 类重规划条件，全部通过后才执行拼接
+- `trajectory_stitcher.cc:L119-L265`
+
+#### ComputeReinitStitchingTrajectory()
+
+```cpp
+std::vector<TrajectoryPoint> TrajectoryStitcher::ComputeReinitStitchingTrajectory(
+    const double planning_cycle_time, const VehicleState& vehicle_state) {
+  // 低速低加速度时直接用当前状态
+  // 否则用 VehicleModel::Predict 预测一个周期后的状态
+  return std::vector<TrajectoryPoint>(1, reinit_point);
+}
+```
+
+- 返回仅含 1 个点的向量，表示"从当前位置重新规划"
+- 阈值：`kEpsilon_v = 0.1 m/s`，`kEpsilon_a = 0.4 m/s²`
+- `trajectory_stitcher.cc:L58-L78`
+
+#### TransformLastPublishedTrajectory()
+
+```cpp
+void TrajectoryStitcher::TransformLastPublishedTrajectory(
+    const double x_diff, const double y_diff, const double theta_diff,
+    PublishableTrajectory* prev_trajectory) {
+  // 计算逆旋转矩阵 R^{-1} 和平移 -R^{-1}*t
+  // 对轨迹中每个点执行坐标变换
+}
+```
+
+- 仅在导航模式（navigation mode）下使用
+- 将上一轨迹从旧坐标系变换到新坐标系（处理定位漂移）
+- `trajectory_stitcher.cc:L81-L112`
+
+#### need_replan_by_necessary_check()
+
+```cpp
+bool TrajectoryStitcher::need_replan_by_necessary_check(
+    const VehicleState& vehicle_state, const double current_timestamp,
+    const PublishableTrajectory* prev_trajectory,
+    std::string* replan_reason, size_t* time_matched_index);
+```
+
+- 检查条件：gflag 关闭、无前序轨迹、非自动驾驶模式、轨迹为空、当前时间超出轨迹时间范围、匹配点无 path_point
+- `trajectory_stitcher.cc:L278-L335`
+
+#### need_replan_by_control_interactive()
+
+- 检查控制模块发来的重规划请求消息是否超时（3s）
+- 若未超时且 `replan_request == true`，返回需要重规划
+- `trajectory_stitcher.cc:L337-L354`
+
+#### ComputeControlInteractiveStitchingTrajectory()
+
+- 根据 `ReplanRequestReasonCode` 区分全量重规划（`REPLAN_REQ_ALL_REPLAN` / `REPLAN_REQ_STATION_REPLAN`）和速度重规划
+- 速度重规划时保留时间匹配点的位置，仅重新生成速度
+- `trajectory_stitcher.cc:L356-L378`
+
+### 13.4 重规划判定流程
+
+```mermaid
+graph TD
+    A[ComputeStitchingTrajectory] --> B{必要性检查}
+    B -->|需重规划| R[ComputeReinitStitchingTrajectory]
+    B -->|通过| C{档位 N→D?}
+    C -->|是| R
+    C -->|否| D{控制交互重规划?}
+    D -->|是| E[ComputeControlInteractiveStitchingTrajectory]
+    D -->|否| F{偏移量超阈值?}
+    F -->|是| R
+    F -->|否| G[截取拼接段并归零]
+```
+
+### 13.5 调用关系
+
+- **被调用方**：`PlanningComponent::RunOnce()` 在每个规划周期开始时调用 `ComputeStitchingTrajectory`
+- **依赖**：`VehicleModel::Predict`（运动学预测）、`PublishableTrajectory`（上一周期轨迹）、`FLAGS_replan_lateral_distance_threshold` / `FLAGS_replan_longitudinal_distance_threshold` / `FLAGS_replan_time_threshold`（重规划阈值 gflags）
