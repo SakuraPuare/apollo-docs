@@ -6,7 +6,9 @@
   "scripts": {
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "lint:md": "markdownlint-cli2 \"docs/**/*.md\"",
+    "fix:md": "markdownlint-cli2 --fix \"docs/**/*.md\""
   },
   "keywords": [],
   "author": "",
@@ -16,8 +18,10 @@
     "@nolebase/vitepress-plugin-enhanced-readabilities": "^2.18.2",
     "@nolebase/vitepress-plugin-git-changelog": "^2.18.2",
     "canvas-confetti": "^1.9.4",
+    "markdownlint-cli2": "^0.22.1",
     "medium-zoom": "^1.1.0",
     "mermaid": "^11.13.0",
+    "prettier": "^3.8.3",
     "vitepress": "^1.6.4",
     "vitepress-plugin-group-icons": "^1.7.3",
     "vitepress-plugin-lightbox": "^1.0.3",
