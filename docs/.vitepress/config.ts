@@ -271,6 +271,7 @@ export default withMermaid(defineConfig({
             { text: '开放空间与泊车', link: '/modules/planning/source/open-space' },
             { text: '核心数据结构', link: '/modules/planning/source/planning-base-common' },
             { text: '一维轨迹原语', link: '/modules/planning/source/trajectory1d' },
+            { text: '工具函数库', link: '/modules/planning/source/planning-util' },
             { text: '数学库', link: '/modules/planning/source/planning-math' },
           ],
         },
