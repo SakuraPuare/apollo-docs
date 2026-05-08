@@ -37,6 +37,7 @@ class ClassLoader {
 ```
 
 关键行为：
+
 - 构造时自动调用 `LoadLibrary()` 加载共享库
 - `CreateClassObj<Base>()` 通过工厂模式创建类实例，返回 `shared_ptr`，析构时自动递减引用计数
 - 使用引用计数管理库的加载/卸载：`loadlib_ref_count_` 跟踪加载次数，`classobj_ref_count_` 跟踪存活对象数
@@ -72,6 +73,7 @@ class ClassLoaderManager {
 ```
 
 关键行为：
+
 - `CreateClassObj(class_name)` 遍历所有已加载的 ClassLoader，找到第一个能创建该类的加载器
 - `CreateClassObj(class_name, library_path)` 从指定库中创建类实例
 - 内部使用 `std::map<std::string, ClassLoader*>` 维护映射关系
@@ -132,6 +134,7 @@ namespace utility {
 ```
 
 核心数据结构：
+
 - `BaseToClassFactoryMapMap`：`map<base_class_typeid, map<class_name, AbstractClassFactoryBase*>>`，二级映射，先按基类类型再按派生类名索引工厂对象
 - `LibPathSharedLibVector`：已加载共享库的路径和 SharedLibrary 指针列表
 

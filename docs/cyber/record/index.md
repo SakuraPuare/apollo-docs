@@ -67,6 +67,7 @@ class RecordWriter : public RecordBase {
 ```
 
 关键行为：
+
 - `Open()` 时根据 Header 中的 `segment_interval` / `segment_raw_size` 决定是否启用文件分段，分段文件名格式为 `原始文件名.00000.YYYYMMDDHHmmss`
 - `WriteMessage()` 内部检查是否需要分段（`SplitOutfile()`），基于时间间隔或文件大小触发
 - 模板版本的 `WriteMessage()` 会自动序列化 protobuf 消息并校验消息类型一致性
@@ -89,6 +90,7 @@ class RecordReader : public RecordBase {
 ```
 
 关键行为：
+
 - 构造时读取文件 Header 和 Index，建立 channel 信息映射
 - `ReadMessage()` 按 chunk 顺序逐条读取，支持时间范围过滤
 - 内部通过 `ReadNextChunk()` 逐段读取 ChunkHeader 和 ChunkBody，可跳过不在时间范围内的 chunk

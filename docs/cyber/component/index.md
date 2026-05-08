@@ -59,6 +59,7 @@ protected:
 ```
 
 关键设计：
+
 - 继承 `std::enable_shared_from_this`，确保组件在异步回调中安全引用自身
 - `Shutdown()` 流程：设置 `is_shutdown_` 标志 -> 调用 `Clear()` -> 关闭所有 Reader -> 从调度器移除任务
 - 配置文件路径支持 `APOLLO_CONF_PATH` 环境变量解析，flag 文件支持 `APOLLO_FLAG_PATH` 环境变量
@@ -112,6 +113,7 @@ class Component;
 ```
 
 Initialize 流程（以单消息为例）：
+
 1. 创建 `Node` 实例
 2. 调用 `LoadConfigFiles()` 加载配置文件和 flag 文件
 3. 调用用户的 `Init()` 方法
@@ -149,6 +151,7 @@ private:
 ```
 
 Initialize 流程：
+
 1. 校验配置中 `name` 和 `interval` 字段
 2. 创建 `Node` 实例
 3. 调用 `LoadConfigFiles()` 加载配置

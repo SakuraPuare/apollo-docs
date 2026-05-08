@@ -50,6 +50,7 @@ class HasSerializer {
 | `GetDescriptorString(msg, desc_str)` | 获取 protobuf descriptor 序列化字符串 |
 
 分发逻辑优先级：
+
 1. `google::protobuf::Message` 子类 -- 走 `protobuf_traits.h` 特化
 2. 具有 `TypeName` 静态/成员方法的自定义类型 -- 走通用 trait 分发
 3. `RawMessage` -- 走 `raw_message_traits.h` 特化

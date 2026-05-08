@@ -32,6 +32,7 @@ class Logger : public google::base::Logger {
 ```
 
 工作原理：
+
 - `Write()` 被调用时，先通过 `FindModuleName()` 从日志消息中提取模块名（由方括号 `[module_name]` 标记）
 - 根据模块名查找或创建对应的 `LogFileObject`，将日志写入模块专属文件
 - 文件命名格式：`{module_name}.log.INFO.{timestamp}`
@@ -58,6 +59,7 @@ class AsyncLogger : public google::base::Logger {
 ```
 
 关键设计：
+
 - 双缓冲机制：`active_buf_` 接收应用线程写入，`flushing_buf_` 由后台线程消费
 - 后台线程 `RunThread()` 周期性交换两个缓冲区并执行 flush
 - 使用 `atomic_flag` 自旋锁（而非 mutex）保护缓冲区交换，最小化锁竞争
@@ -97,6 +99,7 @@ class LogFileObject : public google::base::Logger {
 ```
 
 关键行为：
+
 - 日志文件命名：`{base_filename}{YYYYMMDD-HHmmss.pid}`
 - 创建文件时同时创建符号链接，便于快速定位最新日志
 - 支持按文件大小轮转（由 `FLAGS_max_log_size` 控制）
@@ -126,6 +129,7 @@ inline void FindModuleName(std::string* log_message, std::string* module_name);
 ```
 
 `FindModuleName()` 的工作方式：
+
 1. 在日志消息中查找 `[` 和 `]` 括号对
 2. 提取括号内的字符串作为模块名
 3. 从原始消息中移除模块名标记

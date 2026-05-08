@@ -105,6 +105,7 @@ class Scheduler {
 ```
 
 `CreateTask` 的流程：
+
 1. 注册任务名，生成 hash id
 2. 创建 CRoutine 并设置 id/name
 3. 调用子类 `DispatchTask` 将协程放入对应队列
@@ -371,6 +372,7 @@ scheduler_conf {
 ```
 
 配置要点：
+
 - `affinity: "range"` — 所有 Processor 线程可在 cpuset 范围内的任意 CPU 上运行
 - `affinity: "1to1"` — 第 i 个 Processor 绑定到 cpuset 中的第 i 个 CPU
 - `tasks` 中未列出的协程会被分配到第一个组，优先级为默认值
@@ -407,6 +409,7 @@ scheduler_conf {
 ```
 
 配置要点：
+
 - `processor` 字段指定协程绑定的 Choreography Processor 编号（0 ~ N-1）
 - 未指定 `processor` 的任务（如 "E"）会进入 Pool Processor 池
 - Choreography Processor 通常使用 `SCHED_FIFO` 实时调度策略以获得更低延迟

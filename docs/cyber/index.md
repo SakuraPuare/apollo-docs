@@ -1,5 +1,6 @@
 ---
 title: Cyber 中间件框架
+order: 1
 ---
 
 # Cyber 中间件框架
@@ -31,18 +32,18 @@ Cyber RT 采用分层架构设计：
 
 | 模块 | 职责 | 文档 |
 |------|------|------|
-| Node | 通信节点抽象，提供 Reader/Writer/Service/Client 创建接口 | [node](./node.md) |
-| Component | 组件基类，支持消息驱动（1~4路）和定时驱动两种模型 | [component](./component.md) |
-| Message | 消息类型系统，基于 SFINAE 的编译期 trait 分发和 protobuf 序列化 | [message](./message.md) |
-| Transport | 传输层，Intra/SHM/RTPS 三种机制 + Hybrid 自动选择 | [transport](./transport.md) |
-| Scheduler | 协程调度器，Classic（多组优先级队列）和 Choreography（编排式）策略 | [scheduler](./scheduler.md) |
-| Timer | 分层时间轮定时器，驱动 TimerComponent 的周期执行 | [timer](./timer.md) |
-| Service Discovery | 去中心化拓扑发现，TopologyManager + NodeManager/ChannelManager/ServiceManager | [service-discovery](./service-discovery.md) |
-| Parameter | 参数服务，基于 Service/Client 模式的分布式参数读写 | [parameter](./parameter.md) |
-| Record | 数据录制回放，chunk 分段 + 文件分段 + 压缩 | [record](./record.md) |
-| Logger | 异步日志系统，按模块名分文件 + 双缓冲异步写入 | [logger](./logger.md) |
-| Class Loader | 动态类加载与插件管理，dlopen + 工厂模式 + XML 插件描述 | [class-loader](./class-loader.md) |
-| Mainboard | 主程序入口，DAG 文件解析 + 组件加载 + 生命周期管理 | [mainboard](./mainboard.md) |
+| Node | 通信节点抽象，提供 Reader/Writer/Service/Client 创建接口 | [node](./node/) |
+| Component | 组件基类，支持消息驱动（1~4路）和定时驱动两种模型 | [component](./component/) |
+| Message | 消息类型系统，基于 SFINAE 的编译期 trait 分发和 protobuf 序列化 | [message](./message/) |
+| Transport | 传输层，Intra/SHM/RTPS 三种机制 + Hybrid 自动选择 | [transport](./transport/) |
+| Scheduler | 协程调度器，Classic（多组优先级队列）和 Choreography（编排式）策略 | [scheduler](./scheduler/) |
+| Timer | 分层时间轮定时器，驱动 TimerComponent 的周期执行 | [timer](./timer/) |
+| Service Discovery | 去中心化拓扑发现，TopologyManager + NodeManager/ChannelManager/ServiceManager | [service-discovery](./service_discovery/) |
+| Parameter | 参数服务，基于 Service/Client 模式的分布式参数读写 | [parameter](./parameter/) |
+| Record | 数据录制回放，chunk 分段 + 文件分段 + 压缩 | [record](./record/) |
+| Logger | 异步日志系统，按模块名分文件 + 双缓冲异步写入 | [logger](./logger/) |
+| Class Loader | 动态类加载与插件管理，dlopen + 工厂模式 + XML 插件描述 | [class-loader](./class_loader/) |
+| Mainboard | 主程序入口，DAG 文件解析 + 组件加载 + 生命周期管理 | [mainboard](./mainboard/) |
 
 ## 典型数据流
 

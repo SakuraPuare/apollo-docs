@@ -105,6 +105,7 @@ public:
 ```
 
 关键行为：
+
 - 根据运行模式（`MODE_REALITY` / `MODE_SIMULATION`）决定创建标准 Reader/Writer 还是进程内（Intra）版本
 - 自动填充 `RoleAttributes` 中缺失的字段（host_name、process_id、node_id、channel_id、message_type、proto_desc、qos_profile）
 - 创建后将 Writer/Reader 注册到拓扑管理器（`TopologyManager`）
@@ -122,6 +123,7 @@ struct ReaderConfig {
 ```
 
 默认 QoS 配置：
+
 - `history`: `HISTORY_KEEP_LAST`
 - `depth`: 1
 - `mps`: 0（不限速）
@@ -175,6 +177,7 @@ public:
 ```
 
 Init 流程：
+
 1. 通过 `Transport::Instance()->CreateTransmitter<MessageT>()` 创建 Transmitter
 2. 将自身注册到 `ChannelManager`（加入拓扑）
 3. 监听拓扑变化事件
@@ -242,6 +245,7 @@ public:
 ```
 
 Init 流程：
+
 1. 通过 `ReceiverManager` 获取或创建 `Receiver`（同一 channel 共享一个 Receiver）
 2. 创建 `DataVisitor` 和 `ChannelBuffer` 用于数据缓存
 3. 如果设置了回调函数，通过 `RoutineFactory` 创建协程任务并注册到调度器

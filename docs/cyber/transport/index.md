@@ -291,6 +291,7 @@ struct WritableBlock {
 ```
 
 Segment 有两种实现：
+
 - `PosixSegment`：基于 POSIX 共享内存（`shm_open`/`mmap`）
 - `XsiSegment`：基于 System V 共享内存（`shmget`/`shmat`）
 
@@ -404,6 +405,7 @@ class ProtobufArenaManager : public message::ArenaManagerBase {
 ```
 
 `ArenaSegment` 管理每个 channel 的 arena 内存区域，包含：
+
 - `ArenaSegmentState`：引用计数、消息大小、block 数量等原子状态
 - `ArenaSegmentBlock[]`：每个 block 的读写锁和大小信息
 - `google::protobuf::Arena[]`：每个 block 对应一个 protobuf Arena 实例

@@ -45,6 +45,7 @@ private:
 ```
 
 初始化流程：
+
 1. 创建 RTPS Participant，名称格式为 `hostname+pid`，监听端口 `11512`
 2. 注册 `ParticipantListener` 监听其他 Participant 的发现/移除事件
 3. 依次初始化 NodeManager、ChannelManager、ServiceManager，各自通过 `StartDiscovery` 创建独立的 RTPS Publisher/Subscriber
