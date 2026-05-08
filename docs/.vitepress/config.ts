@@ -338,6 +338,7 @@ export default withMermaid(defineConfig({
           items: [
             { text: '任务总览', link: '/modules/planning/source/tasks' },
             { text: '车道跟随路径', link: '/modules/planning/source/task-lane-follow-path' },
+            { text: '路径复用', link: '/modules/planning/source/task-reuse-path' },
             { text: '借道路径', link: '/modules/planning/source/task-lane-borrow-path' },
             { text: '换道路径', link: '/modules/planning/source/task-lane-change-path' },
             { text: '兜底与倒车路径', link: '/modules/planning/source/task-fallback-reverse-path' },
