@@ -287,6 +287,7 @@ export default withMermaid(defineConfig({
             { text: '代客泊车场景', link: '/modules/planning/source/valet-parking' },
             { text: '规划任务', link: '/modules/planning/source/tasks' },
             { text: '兜底与倒车路径任务', link: '/modules/planning/source/task-fallback-reverse-path' },
+            { text: 'RSS 安全距离决策器', link: '/modules/planning/source/task-rss-decider' },
             { text: '交通规则', link: '/modules/planning/source/traffic-rules' },
             { text: '开放空间与泊车', link: '/modules/planning/source/open-space' },
             { text: '核心数据结构', link: '/modules/planning/source/planning-base-common' },
