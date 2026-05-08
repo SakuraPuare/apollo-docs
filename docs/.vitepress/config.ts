@@ -90,12 +90,20 @@ export default withMermaid(defineConfig({
         activeMatch: '/modules/',
         items: [
           {
-            text: '感知与决策',
+            text: '感知与预测',
             items: [
               { text: 'Perception 感知', link: '/modules/perception/' },
               { text: 'Prediction 预测', link: '/modules/prediction/' },
-              { text: 'Planning 规划', link: '/modules/planning/' },
-              { text: 'Control 控制', link: '/modules/control/' },
+            ],
+          },
+          {
+            text: '规划与控制',
+            items: [
+              { text: 'Planning 总览', link: '/modules/planning/' },
+              { text: 'Planning 架构与机制', link: '/modules/planning/architecture/component-and-pncmap' },
+              { text: 'Planning 源码解析', link: '/modules/planning/source/reference-line' },
+              { text: 'Control 总览', link: '/modules/control/' },
+              { text: 'Control 源码解析', link: '/modules/control/source/controllers' },
             ],
           },
           {
@@ -266,6 +274,7 @@ export default withMermaid(defineConfig({
           items: [
             { text: '参考线', link: '/modules/planning/source/reference-line' },
             { text: '场景机', link: '/modules/planning/source/scenarios' },
+            { text: '停车标志场景阶段', link: '/modules/planning/source/scenario-stages-stop-sign' },
             { text: '规划任务', link: '/modules/planning/source/tasks' },
             { text: '交通规则', link: '/modules/planning/source/traffic-rules' },
             { text: '开放空间与泊车', link: '/modules/planning/source/open-space' },
@@ -314,14 +323,20 @@ export default withMermaid(defineConfig({
       ],
       '/modules/': [
         {
-          text: '感知与决策',
+          text: '感知与预测',
           collapsed: false,
           items: [
             { text: 'Perception 感知', link: '/modules/perception/' },
             { text: 'Perception 核心算法', link: '/modules/perception/algorithms' },
             { text: 'Prediction 预测', link: '/modules/prediction/' },
-            { text: 'Planning 规划', link: '/modules/planning/' },
-            { text: 'Control 控制', link: '/modules/control/' },
+          ],
+        },
+        {
+          text: '规划与控制（源码级）',
+          collapsed: false,
+          items: [
+            { text: 'Planning 规划 →', link: '/modules/planning/' },
+            { text: 'Control 控制 →', link: '/modules/control/' },
           ],
         },
         {
