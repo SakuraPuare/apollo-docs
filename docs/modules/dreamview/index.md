@@ -1,3 +1,7 @@
+---
+title: "Dreamview 可视化模块"
+---
+
 # Dreamview 可视化模块
 
 Apollo Dreamview 是 Apollo 自动驾驶平台的 Web 可视化与人机交互（HMI）模块。它提供了一个基于浏览器的实时可视化界面，用于监控自动驾驶车辆的运行状态、调试算法输出、回放数据记录以及管理各功能模块的启停。Apollo 目前维护两个版本：经典版 **Dreamview** 和新一代 **Dreamview Plus**。
