@@ -25,11 +25,21 @@ const moduleNav = [
   { text: 'Localization 定位', link: '/modules/localization/' },
   { text: 'Routing 路由', link: '/modules/routing/' },
   { text: 'Map 地图', link: '/modules/map/' },
+  { text: 'Transform 坐标变换', link: '/modules/transform/' },
   { text: 'Dreamview 可视化', link: '/modules/dreamview/' },
   { text: 'Drivers 驱动', link: '/modules/drivers/' },
   { text: 'Canbus 总线', link: '/modules/canbus/' },
+  { text: 'V2X 车路协同', link: '/modules/v2x/' },
+  { text: 'Bridge 桥接', link: '/modules/bridge/' },
   { text: 'Guardian 安全守护', link: '/modules/guardian/' },
   { text: 'Monitor 监控', link: '/modules/monitor/' },
+  { text: 'Calibration 标定', link: '/modules/calibration/' },
+  { text: 'Data 数据', link: '/modules/data/' },
+  { text: 'Audio 音频', link: '/modules/audio/' },
+  { text: 'Common 公共', link: '/modules/common/' },
+  { text: 'Storytelling 日志', link: '/modules/storytelling/' },
+  { text: 'Task Manager 任务管理', link: '/modules/task-manager/' },
+  { text: 'External Command 外部命令', link: '/modules/external-command/' },
 ]
 
 export default withMermaid(defineConfig({
@@ -355,6 +365,7 @@ export default withMermaid(defineConfig({
             { text: 'ST 可行驶边界决策器', link: '/modules/planning/source/task-st-bounds-decider' },
             { text: 'PathDecider 与 SpeedDecider', link: '/modules/planning/source/task-path-speed-decider' },
             { text: 'ST 图速度优化器', link: '/modules/planning/source/st-graph-optimizer' },
+            { text: 'Open Space 规划子系统', link: '/modules/planning/source/task-open-space' },
           ],
         },
         {
@@ -409,56 +420,11 @@ export default withMermaid(defineConfig({
       // ─── 通用模块列表（/modules/ 下非 planning/control 的页面） ───
       '/modules/': [
         {
-          text: '感知与决策',
+          text: '全部模块',
           collapsed: false,
           items: [
-            { text: 'Perception 感知', link: '/modules/perception/' },
+            ...moduleNav,
             { text: 'Perception 核心算法', link: '/modules/perception/algorithms' },
-            { text: 'Prediction 预测', link: '/modules/prediction/' },
-            { text: 'Planning 规划', link: '/modules/planning/' },
-            { text: 'Control 控制', link: '/modules/control/' },
-          ],
-        },
-        {
-          text: '定位与导航',
-          collapsed: false,
-          items: [
-            { text: 'Localization 定位', link: '/modules/localization/' },
-            { text: 'Routing 路由', link: '/modules/routing/' },
-            { text: 'Map 地图', link: '/modules/map/' },
-            { text: 'Transform 坐标变换', link: '/modules/transform/' },
-          ],
-        },
-        {
-          text: '硬件与通信',
-          collapsed: false,
-          items: [
-            { text: 'Drivers 驱动', link: '/modules/drivers/' },
-            { text: 'Canbus 总线', link: '/modules/canbus/' },
-            { text: 'V2X 车路协同', link: '/modules/v2x/' },
-            { text: 'Bridge 桥接', link: '/modules/bridge/' },
-          ],
-        },
-        {
-          text: '可视化与监控',
-          collapsed: false,
-          items: [
-            { text: 'Dreamview 可视化', link: '/modules/dreamview/' },
-            { text: 'Monitor 监控', link: '/modules/monitor/' },
-            { text: 'Guardian 安全守护', link: '/modules/guardian/' },
-          ],
-        },
-        {
-          text: '工具与数据',
-          collapsed: false,
-          items: [
-            { text: 'Calibration 标定', link: '/modules/calibration/' },
-            { text: 'Data 数据', link: '/modules/data/' },
-            { text: 'Audio 音频', link: '/modules/audio/' },
-            { text: 'Common 公共', link: '/modules/common/' },
-            { text: 'Storytelling 日志', link: '/modules/storytelling/' },
-            { text: 'Task Manager 任务管理', link: '/modules/task-manager/' },
-            { text: 'External Command 外部命令', link: '/modules/external-command/' },
           ],
         },
       ],
