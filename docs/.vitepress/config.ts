@@ -266,6 +266,7 @@ export default withMermaid(defineConfig({
             { text: 'Planner 规划器', link: '/modules/planning/architecture/planners' },
             { text: '决策机制', link: '/modules/planning/architecture/decision' },
             { text: '配置参考', link: '/modules/planning/architecture/config-reference' },
+            { text: '路径工具类', link: '/modules/planning/architecture/path-util' },
           ],
         },
         {
