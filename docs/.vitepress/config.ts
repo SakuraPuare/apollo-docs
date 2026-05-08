@@ -86,32 +86,32 @@ export default withMermaid(defineConfig({
       },
       { text: 'Cyber 框架', link: '/cyber/', activeMatch: '/cyber/' },
       {
-        text: '核心模块',
+        text: '源码解析',
         activeMatch: '/modules/',
         items: [
           {
-            text: '感知与预测',
+            text: '感知与决策',
             items: [
               { text: 'Perception 感知', link: '/modules/perception/' },
               { text: 'Prediction 预测', link: '/modules/prediction/' },
-            ],
-          },
-          {
-            text: '规划与控制',
-            items: [
-              { text: 'Planning 总览', link: '/modules/planning/' },
-              { text: 'Planning 系统阐述', link: '/modules/planning/architecture/decision' },
-              { text: 'Planning 源码解析', link: '/modules/planning/source/reference-line' },
-              { text: 'Control 总览', link: '/modules/control/' },
-              { text: 'Control 源码解析', link: '/modules/control/source/controllers' },
+              { text: 'Planning 规划', link: '/modules/planning/' },
+              { text: 'Control 控制', link: '/modules/control/' },
             ],
           },
           {
             text: '定位与导航',
             items: [
               { text: 'Localization 定位', link: '/modules/localization/' },
-              { text: 'Map 地图', link: '/modules/map/' },
               { text: 'Routing 路由', link: '/modules/routing/' },
+              { text: 'Map 地图', link: '/modules/map/' },
+            ],
+          },
+          {
+            text: '硬件与通信',
+            items: [
+              { text: 'Drivers 驱动', link: '/modules/drivers/' },
+              { text: 'Canbus 总线', link: '/modules/canbus/' },
+              { text: 'V2X 车路协同', link: '/modules/v2x/' },
             ],
           },
         ],
@@ -120,9 +120,10 @@ export default withMermaid(defineConfig({
         text: '工具与平台',
         items: [
           { text: 'Dreamview 可视化', link: '/modules/dreamview/' },
+          { text: 'Monitor 监控', link: '/modules/monitor/' },
+          { text: 'Guardian 安全守护', link: '/modules/guardian/' },
           { text: 'Calibration 标定', link: '/modules/calibration/' },
           { text: 'Data 数据', link: '/modules/data/' },
-          { text: 'Monitor 监控', link: '/modules/monitor/' },
         ],
       },
       {
@@ -282,6 +283,7 @@ export default withMermaid(defineConfig({
             { text: '决策机制', link: '/modules/planning/architecture/decision' },
             { text: 'Scenario & Stage 基类', link: '/modules/planning/architecture/scenario-stage-base' },
             { text: 'Task 基类体系', link: '/modules/planning/architecture/task-base' },
+            { text: 'PublicRoadPlanner 与场景管理', link: '/modules/planning/architecture/public-road-planner' },
           ],
         },
         {
@@ -411,11 +413,11 @@ export default withMermaid(defineConfig({
           ],
         },
         {
-          text: '规划与控制（源码级）',
+          text: '规划与控制',
           collapsed: false,
           items: [
-            { text: 'Planning 规划 →', link: '/modules/planning/' },
-            { text: 'Control 控制 →', link: '/modules/control/' },
+            { text: 'Planning 规划', link: '/modules/planning/' },
+            { text: 'Control 控制', link: '/modules/control/' },
           ],
         },
         {
