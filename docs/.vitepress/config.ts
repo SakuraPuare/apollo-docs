@@ -346,6 +346,7 @@ export default withMermaid(defineConfig({
             { text: '速度边界决策器', link: '/modules/planning/source/task-speed-bounds-decider' },
             { text: 'ST 可行驶边界决策器', link: '/modules/planning/source/task-st-bounds-decider' },
             { text: 'PiecewiseJerk 速度优化器', link: '/modules/planning/source/task-piecewise-jerk-speed' },
+            { text: 'DP 速度启发式优化器', link: '/modules/planning/source/task-path-time-heuristic' },
             { text: 'ST 图速度优化器', link: '/modules/planning/source/st-graph-optimizer' },
             { text: '规则停车决策器', link: '/modules/planning/source/task-rule-based-stop-decider' },
             { text: 'RSS 安全距离决策器', link: '/modules/planning/source/task-rss-decider' },
