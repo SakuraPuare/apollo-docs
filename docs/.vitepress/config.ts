@@ -355,6 +355,7 @@ export default withMermaid(defineConfig({
             { text: '规则停车决策器', link: '/modules/planning/source/task-rule-based-stop-decider' },
             { text: 'RSS 安全距离决策器', link: '/modules/planning/source/task-rss-decider' },
             { text: '路径参考决策器', link: '/modules/planning/source/task-path-reference-decider' },
+            { text: '速度 Fallback 任务', link: '/modules/planning/source/task-speed-fallback' },
           ],
         },
         {
