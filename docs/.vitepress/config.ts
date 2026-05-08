@@ -258,6 +258,7 @@ export default withMermaid(defineConfig({
             { text: 'Planning 参考线', link: '/modules/planning/reference-line' },
             { text: 'Planning 格栅规划器', link: '/modules/planning/lattice-planner' },
             { text: 'Planning 导航规划器', link: '/modules/planning/navi-planner' },
+            { text: 'Planning 规划器总览', link: '/modules/planning/planners' },
             { text: 'Planning 交通规则', link: '/modules/planning/traffic-rules' },
             { text: 'Planning 场景机', link: '/modules/planning/scenarios' },
             { text: 'Planning 规划任务', link: '/modules/planning/tasks' },
