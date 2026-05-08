@@ -252,6 +252,24 @@ export default withMermaid(defineConfig({
       ],
       '/modules/planning/': [
         {
+          text: '源码解析模块',
+          collapsed: true,
+          items: [
+            { text: 'Perception 感知', link: '/modules/perception/' },
+            { text: 'Prediction 预测', link: '/modules/prediction/' },
+            { text: 'Planning 规划', link: '/modules/planning/' },
+            { text: 'Control 控制', link: '/modules/control/' },
+            { text: 'Localization 定位', link: '/modules/localization/' },
+            { text: 'Routing 路由', link: '/modules/routing/' },
+            { text: 'Map 地图', link: '/modules/map/' },
+            { text: 'Dreamview 可视化', link: '/modules/dreamview/' },
+            { text: 'Drivers 驱动', link: '/modules/drivers/' },
+            { text: 'Canbus 总线', link: '/modules/canbus/' },
+            { text: 'Guardian 安全守护', link: '/modules/guardian/' },
+            { text: 'Monitor 监控', link: '/modules/monitor/' },
+          ],
+        },
+        {
           text: 'Planning 规划',
           items: [
             { text: '模块总览', link: '/modules/planning/' },
@@ -263,6 +281,7 @@ export default withMermaid(defineConfig({
           items: [
             { text: '决策机制', link: '/modules/planning/architecture/decision' },
             { text: 'Scenario & Stage 基类', link: '/modules/planning/architecture/scenario-stage-base' },
+            { text: 'Task 基类体系', link: '/modules/planning/architecture/task-base' },
           ],
         },
         {
@@ -344,6 +363,24 @@ export default withMermaid(defineConfig({
         },
       ],
       '/modules/control/': [
+        {
+          text: '源码解析模块',
+          collapsed: true,
+          items: [
+            { text: 'Perception 感知', link: '/modules/perception/' },
+            { text: 'Prediction 预测', link: '/modules/prediction/' },
+            { text: 'Planning 规划', link: '/modules/planning/' },
+            { text: 'Control 控制', link: '/modules/control/' },
+            { text: 'Localization 定位', link: '/modules/localization/' },
+            { text: 'Routing 路由', link: '/modules/routing/' },
+            { text: 'Map 地图', link: '/modules/map/' },
+            { text: 'Dreamview 可视化', link: '/modules/dreamview/' },
+            { text: 'Drivers 驱动', link: '/modules/drivers/' },
+            { text: 'Canbus 总线', link: '/modules/canbus/' },
+            { text: 'Guardian 安全守护', link: '/modules/guardian/' },
+            { text: 'Monitor 监控', link: '/modules/monitor/' },
+          ],
+        },
         {
           text: 'Control 控制',
           items: [
