@@ -100,14 +100,10 @@ StageResult TrafficLightUnprotectedLeftTurnStageApproach::FinishStage(Frame* fra
 - 完成后设置 `next_stage_ = "..._INTERSECTION_CRUISE"`
 - `stage_creep.cc:L53-L127`
 
-### 3. StageIntersectionCruise — 路口巡航阶段
+### 3. TrafficLightUnprotectedLeftTurnStageIntersectionCruise — 路口巡航阶段
 
 - 与有保护场景完全相同：`ExecuteTaskOnReferenceLine` + `CheckDone`
 - `stage_intersection_cruise.cc:L30-L51`
-
----
-
-## 二、TrafficLightUnprotectedRightTurn 无保护右转
 
 ### 阶段流程
 
@@ -191,7 +187,7 @@ bool CheckTrafficLightNoRightTurnOnRed(const std::string& traffic_light_id) {
 - **不检查信号灯颜色**（红灯右转时已确认可通行）
 - `stage_creep.cc:L57-L131`
 
-### 3. StageIntersectionCruise — 路口巡航阶段
+### 3. TrafficLightUnprotectedRightTurnStageIntersectionCruise — 路口巡航阶段
 
 - 标准 `CheckDone` + `FinishScenario`
 
