@@ -511,6 +511,14 @@ class HistoryObjectDecision {
 ### 12.3 HistoryStatus
 
 ```cpp
+class HistoryObjectStatus {
+  void Init(const string& id, const ObjectStatus& object_status);
+  const string& id() const;
+  const ObjectStatus GetObjectStatus() const;
+};
+```
+
+```cpp
 class HistoryStatus {
   void SetObjectStatus(const string& id, const ObjectStatus&);
   bool GetObjectStatus(const string& id, ObjectStatus*);

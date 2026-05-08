@@ -87,7 +87,7 @@ StageResult TrafficLightUnprotectedLeftTurnStageApproach::FinishStage(Frame* fra
 - 否则进入蠕行阶段
 - `stage_approach.cc:L118-L153`
 
-### 2. StageCreep — 蠕行阶段
+### 2. TrafficLightUnprotectedLeftTurnStageCreep — 蠕行阶段
 
 > `stage_creep.cc`，继承 `BaseStageCreep`
 
