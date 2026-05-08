@@ -341,6 +341,7 @@ export default withMermaid(defineConfig({
             { text: '借道路径', link: '/modules/planning/source/task-lane-borrow-path' },
             { text: '换道路径', link: '/modules/planning/source/task-lane-change-path' },
             { text: '兜底与倒车路径', link: '/modules/planning/source/task-fallback-reverse-path' },
+            { text: '靠边停车路径', link: '/modules/planning/source/task-pull-over-path' },
             { text: '障碍物绕行决策器', link: '/modules/planning/source/task-obstacle-nudge-decider' },
             { text: 'PathDecider 与 SpeedDecider', link: '/modules/planning/source/task-path-speed-decider' },
             { text: '速度边界决策器', link: '/modules/planning/source/task-speed-bounds-decider' },
