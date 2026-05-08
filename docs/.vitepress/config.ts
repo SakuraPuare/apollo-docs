@@ -353,6 +353,7 @@ export default withMermaid(defineConfig({
             { text: 'ST 图速度优化器', link: '/modules/planning/source/st-graph-optimizer' },
             { text: '规则停车决策器', link: '/modules/planning/source/task-rule-based-stop-decider' },
             { text: 'RSS 安全距离决策器', link: '/modules/planning/source/task-rss-decider' },
+            { text: '路径参考决策器', link: '/modules/planning/source/task-path-reference-decider' },
           ],
         },
         {
