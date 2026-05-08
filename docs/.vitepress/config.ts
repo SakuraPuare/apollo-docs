@@ -294,6 +294,7 @@ export default withMermaid(defineConfig({
             { text: 'Navi Planner', link: '/modules/planning/supplementary/navi-planner' },
             { text: '学习型组件', link: '/modules/planning/supplementary/learning-based' },
             { text: '补充组件', link: '/modules/planning/supplementary/supplementary' },
+            { text: '横向 QP 优化器', link: '/modules/planning/supplementary/lateral-optimizer' },
           ],
         },
       ],
