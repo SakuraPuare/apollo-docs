@@ -288,19 +288,9 @@ export default withMermaid(defineConfig({
 
       // ─── Planning ───
       '/modules/planning/': [
+        { text: '模块总览', link: '/modules/planning/' },
         {
-          text: '全部模块',
-          collapsed: true,
-          items: moduleNav,
-        },
-        {
-          text: 'Planning 规划',
-          items: [
-            { text: '模块总览', link: '/modules/planning/' },
-          ],
-        },
-        {
-          text: '系统阐述',
+          text: 'architecture/',
           collapsed: false,
           items: [
             { text: '决策机制', link: '/modules/planning/architecture/decision' },
@@ -310,19 +300,13 @@ export default withMermaid(defineConfig({
           ],
         },
         {
-          text: '组件与框架',
+          text: '框架与基础',
           collapsed: false,
           items: [
             { text: '组件入口与 PncMap', link: '/modules/planning/source/component-and-pncmap' },
             { text: '接口层设计', link: '/modules/planning/source/interface-base' },
             { text: 'Planner 规划器', link: '/modules/planning/source/planners' },
             { text: '配置参考', link: '/modules/planning/source/config-reference' },
-          ],
-        },
-        {
-          text: '参考线与基础库',
-          collapsed: false,
-          items: [
             { text: '参考线', link: '/modules/planning/source/reference-line' },
             { text: '核心数据结构', link: '/modules/planning/source/planning-base-common' },
             { text: '一维轨迹原语', link: '/modules/planning/source/trajectory1d' },
@@ -353,19 +337,18 @@ export default withMermaid(defineConfig({
           collapsed: true,
           items: [
             { text: '任务总览', link: '/modules/planning/source/tasks' },
-            { text: '兜底与倒车路径任务', link: '/modules/planning/source/task-fallback-reverse-path' },
-            { text: 'RSS 安全距离决策器', link: '/modules/planning/source/task-rss-decider' },
-            { text: '规则停车决策器', link: '/modules/planning/source/task-rule-based-stop-decider' },
-            { text: '障碍物绕行决策器', link: '/modules/planning/source/task-obstacle-nudge-decider' },
             { text: '车道跟随路径', link: '/modules/planning/source/task-lane-follow-path' },
             { text: '借道路径', link: '/modules/planning/source/task-lane-borrow-path' },
             { text: '换道路径', link: '/modules/planning/source/task-lane-change-path' },
-            { text: 'PiecewiseJerk 速度优化器', link: '/modules/planning/source/task-piecewise-jerk-speed' },
+            { text: '兜底与倒车路径', link: '/modules/planning/source/task-fallback-reverse-path' },
+            { text: '障碍物绕行决策器', link: '/modules/planning/source/task-obstacle-nudge-decider' },
+            { text: 'PathDecider 与 SpeedDecider', link: '/modules/planning/source/task-path-speed-decider' },
             { text: '速度边界决策器', link: '/modules/planning/source/task-speed-bounds-decider' },
             { text: 'ST 可行驶边界决策器', link: '/modules/planning/source/task-st-bounds-decider' },
-            { text: 'PathDecider 与 SpeedDecider', link: '/modules/planning/source/task-path-speed-decider' },
+            { text: 'PiecewiseJerk 速度优化器', link: '/modules/planning/source/task-piecewise-jerk-speed' },
             { text: 'ST 图速度优化器', link: '/modules/planning/source/st-graph-optimizer' },
-            { text: 'Open Space 规划子系统', link: '/modules/planning/source/task-open-space' },
+            { text: '规则停车决策器', link: '/modules/planning/source/task-rule-based-stop-decider' },
+            { text: 'RSS 安全距离决策器', link: '/modules/planning/source/task-rss-decider' },
           ],
         },
         {
@@ -373,6 +356,7 @@ export default withMermaid(defineConfig({
           collapsed: true,
           items: [
             { text: '交通规则', link: '/modules/planning/source/traffic-rules' },
+            { text: 'Open Space 规划子系统', link: '/modules/planning/source/task-open-space' },
             { text: '开放空间与泊车', link: '/modules/planning/source/open-space' },
           ],
         },
@@ -392,19 +376,9 @@ export default withMermaid(defineConfig({
 
       // ─── Control ───
       '/modules/control/': [
+        { text: '模块总览', link: '/modules/control/' },
         {
-          text: '全部模块',
-          collapsed: true,
-          items: moduleNav,
-        },
-        {
-          text: 'Control 控制',
-          items: [
-            { text: '模块总览', link: '/modules/control/' },
-          ],
-        },
-        {
-          text: '源码解析',
+          text: 'source/',
           collapsed: false,
           items: [
             { text: '组件源码', link: '/modules/control/source/control-component' },
@@ -417,16 +391,13 @@ export default withMermaid(defineConfig({
         },
       ],
 
-      // ─── 通用模块列表（/modules/ 下非 planning/control 的页面） ───
+      // ─── 通用模块列表 ───
       '/modules/': [
         {
           text: '全部模块',
-          collapsed: false,
-          items: [
-            ...moduleNav,
-            { text: 'Perception 核心算法', link: '/modules/perception/algorithms' },
-          ],
+          items: moduleNav,
         },
+        { text: 'Perception 核心算法', link: '/modules/perception/algorithms' },
       ],
     },
 
