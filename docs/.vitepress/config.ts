@@ -281,6 +281,7 @@ export default withMermaid(defineConfig({
             { text: '无保护路口场景', link: '/modules/planning/source/bare-intersection-unprotected' },
             { text: '紧急靠边停车场景', link: '/modules/planning/source/emergency-pull-over' },
             { text: '紧急停车场景', link: '/modules/planning/source/emergency-stop' },
+            { text: '靠边停车场景', link: '/modules/planning/source/pull-over' },
             { text: '驶出停车位场景阶段', link: '/modules/planning/source/scenario-stages-park-and-go' },
             { text: '靠边停车场景阶段', link: '/modules/planning/source/scenario-stages-pull-over' },
             { text: '规划任务', link: '/modules/planning/source/tasks' },
