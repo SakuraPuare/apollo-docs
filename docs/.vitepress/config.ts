@@ -284,6 +284,7 @@ export default withMermaid(defineConfig({
             { text: '靠边停车场景', link: '/modules/planning/source/pull-over' },
             { text: '驶出停车位场景阶段', link: '/modules/planning/source/scenario-stages-park-and-go' },
             { text: '靠边停车场景阶段', link: '/modules/planning/source/scenario-stages-pull-over' },
+            { text: '代客泊车场景', link: '/modules/planning/source/valet-parking' },
             { text: '规划任务', link: '/modules/planning/source/tasks' },
             { text: '兜底与倒车路径任务', link: '/modules/planning/source/task-fallback-reverse-path' },
             { text: '交通规则', link: '/modules/planning/source/traffic-rules' },
