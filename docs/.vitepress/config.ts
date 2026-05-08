@@ -352,6 +352,7 @@ export default withMermaid(defineConfig({
             { text: '换道路径', link: '/modules/planning/source/task-lane-change-path' },
             { text: 'PiecewiseJerk 速度优化器', link: '/modules/planning/source/task-piecewise-jerk-speed' },
             { text: '速度边界决策器', link: '/modules/planning/source/task-speed-bounds-decider' },
+            { text: 'ST 可行驶边界决策器', link: '/modules/planning/source/task-st-bounds-decider' },
             { text: 'PathDecider 与 SpeedDecider', link: '/modules/planning/source/task-path-speed-decider' },
             { text: 'ST 图速度优化器', link: '/modules/planning/source/st-graph-optimizer' },
           ],
