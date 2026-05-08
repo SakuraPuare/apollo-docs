@@ -1,3 +1,7 @@
+---
+title: "Control Task Base Extend 与 Slope Anti-Slip Control Task 函数级源码解析"
+---
+
 # Control Task Base Extend 与 Slope Anti-Slip Control Task 函数级源码解析
 
 本文聚焦 `modules/control/control_task_base_extend/` 与 `modules/control/controllers/slope_anti_slip_control_task/` 两个子包，按函数级粒度拆解扩展控制器基类、通用算法扩展、相关 proto 以及坡道防溜车控制任务的配置语义。面向需要在 Apollo 控制栈上自研控制器、扩展共享工具或基于坡道防溜配置做二次开发的工程师。

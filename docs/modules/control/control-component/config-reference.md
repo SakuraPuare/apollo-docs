@@ -1,3 +1,7 @@
+---
+title: "Control Configuration Reference 控制配置参考"
+---
+
 # Control Configuration Reference 控制配置参考
 
 本文档梳理 `modules/control/` 下的关键 Protobuf 配置定义，为理解和调优控制模块提供配置参考。

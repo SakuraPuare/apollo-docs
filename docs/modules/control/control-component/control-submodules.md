@@ -1,3 +1,7 @@
+---
+title: "Control Submodules 控制子模块函数级源码解析"
+---
+
 # Control Submodules 控制子模块函数级源码解析
 
 本文聚焦 `modules/control/control_component/submodules/` 目录，按函数级粒度拆解控制模块的 **4 个 CyberRT 子模块**：预处理器、后处理器、横纵向控制器、MPC 控制器。

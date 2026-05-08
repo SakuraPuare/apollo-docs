@@ -1,3 +1,7 @@
+---
+title: "Controller Base Common 控制算法基础组件函数级源码解析"
+---
+
 # Controller Base Common 控制算法基础组件函数级源码解析
 
 本文聚焦 `modules/control/control_component/controller_task_base/common/` 目录，按函数级粒度拆解控制模块的 **10 个基础算法组件**：PID 控制器族（标准/BC/IC）、Lead-Lag 补偿器、MRAC 自适应控制器、迟滞滤波器、插值器（1D/2D）、轨迹分析器、依赖注入器。

@@ -1,3 +1,7 @@
+---
+title: "Control Component 函数级源码解析"
+---
+
 # Control Component 函数级源码解析
 
 本文聚焦 `modules/control/control_component/` 目录，按函数级粒度拆解 `ControlComponent`、子模块与控制基类的实现。面向需要调试、二次开发或排查控制链路的工程师。

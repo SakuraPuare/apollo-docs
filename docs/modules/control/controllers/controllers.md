@@ -1,3 +1,7 @@
+---
+title: "Control Controllers 控制器函数级源码解析"
+---
+
 # Control Controllers 控制器函数级源码解析
 
 本文聚焦 `modules/control/controllers/` 目录，按函数级粒度拆解两个核心控制器的实现：`LatController`（基于 LQR 的横向控制器）和 `LonController`（基于 PID 的纵向控制器）。
