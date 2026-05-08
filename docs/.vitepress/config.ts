@@ -279,6 +279,7 @@ export default withMermaid(defineConfig({
             { text: '信号灯与让行场景阶段', link: '/modules/planning/source/scenario-stages-traffic-yield' },
             { text: '无保护转向场景阶段', link: '/modules/planning/source/scenario-stages-unprotected-turn' },
             { text: '无保护路口场景', link: '/modules/planning/source/bare-intersection-unprotected' },
+            { text: '紧急靠边停车场景', link: '/modules/planning/source/emergency-pull-over' },
             { text: '驶出停车位场景阶段', link: '/modules/planning/source/scenario-stages-park-and-go' },
             { text: '规划任务', link: '/modules/planning/source/tasks' },
             { text: '交通规则', link: '/modules/planning/source/traffic-rules' },
