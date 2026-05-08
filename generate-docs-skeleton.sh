@@ -86,8 +86,8 @@ for mod_dir in "$APOLLO_ROOT"/modules/*/; do
   mod_title=$(to_title "$mod_name")
   write_index "$DOCS_DIR/modules/$doc_name" "$mod_title" "modules/$mod_name/" ""
 
-  # 大模块（>50 源文件）：展开子目录
-  if [ "$src_count" -gt 50 ]; then
+  # 大模块（>10 源文件）：展开子目录
+  if [ "$src_count" -gt 10 ]; then
     for sub_dir in "$mod_dir"/*/; do
       [ ! -d "$sub_dir" ] && continue
       sub_name=$(basename "$sub_dir")
