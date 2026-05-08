@@ -349,6 +349,7 @@ export default withMermaid(defineConfig({
             { text: '障碍物绕行决策器', link: '/modules/planning/source/task-obstacle-nudge-decider' },
             { text: '车道跟随路径', link: '/modules/planning/source/task-lane-follow-path' },
             { text: 'PiecewiseJerk 速度优化器', link: '/modules/planning/source/task-piecewise-jerk-speed' },
+            { text: '速度边界决策器', link: '/modules/planning/source/task-speed-bounds-decider' },
             { text: 'ST 图速度优化器', link: '/modules/planning/source/st-graph-optimizer' },
           ],
         },
