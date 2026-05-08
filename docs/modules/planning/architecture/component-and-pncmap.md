@@ -7,7 +7,7 @@
 ::: tip 阅读约定
 - 所有代码引用格式为 `modules/...:行号`，引用基于 apollo-edu 仓库 `main` 分支当前代码快照。
 - 为避免歧义，凡未在源码中出现的函数/字段均不会出现在本文中。
-- 本文与 [Planning 模块总览](./index.md) 与 [Decision 模块](./decision.md) 构成完整的 Planning 技术栈文档。
+- 本文与 [Planning 模块总览](../index.md) 与 [Decision 模块](./decision.md) 构成完整的 Planning 技术栈文档。
 :::
 
 ## 1. 模块总览
@@ -1526,7 +1526,7 @@ std::vector<int> LaneFollowMap::GetNeighborPassages(
 
 ## 7. ReferenceLineProvider：PncMap 的上游消费者
 
-位置：`modules/planning/planning_base/reference_line/reference_line_provider.h/cc`。完整文档请参阅 [参考线提供者](./index.md)，此处只梳理它与 PncMap 的接口。
+位置：`modules/planning/planning_base/reference_line/reference_line_provider.h/cc`。完整文档请参阅 [参考线提供者](../source/reference-line.md)，此处只梳理它与 PncMap 的接口。
 
 ### 7.1 实例持有 PncMap
 
@@ -1795,7 +1795,7 @@ sequenceDiagram
 - `modules/planning/planning_interface_base/planner_base/planner.h`
 
 ::: tip 进一步阅读
-- [Planning 模块总览](./index.md)
+- [Planning 模块总览](../index.md)
 - [Decision 模块](./decision.md)
 - 各 Planner 插件（PublicRoadPlanner、LatticePlanner、NaviPlanner、OpenSpacePlanner）的内部任务链
 - Scenario/Stage 的状态机（位于 `planning_base/scenario_base/`）

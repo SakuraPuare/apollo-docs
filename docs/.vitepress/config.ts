@@ -242,6 +242,75 @@ export default withMermaid(defineConfig({
           ],
         },
       ],
+      '/modules/planning/': [
+        {
+          text: 'Planning 规划',
+          items: [
+            { text: '模块总览', link: '/modules/planning/' },
+          ],
+        },
+        {
+          text: '架构与机制',
+          collapsed: false,
+          items: [
+            { text: '组件入口与 PncMap', link: '/modules/planning/architecture/component-and-pncmap' },
+            { text: '接口层设计', link: '/modules/planning/architecture/interface-base' },
+            { text: 'Planner 规划器', link: '/modules/planning/architecture/planners' },
+            { text: '决策机制', link: '/modules/planning/architecture/decision' },
+            { text: '配置参考', link: '/modules/planning/architecture/config-reference' },
+          ],
+        },
+        {
+          text: '源码解析',
+          collapsed: false,
+          items: [
+            { text: '参考线', link: '/modules/planning/source/reference-line' },
+            { text: '场景机', link: '/modules/planning/source/scenarios' },
+            { text: '规划任务', link: '/modules/planning/source/tasks' },
+            { text: '交通规则', link: '/modules/planning/source/traffic-rules' },
+            { text: '开放空间与泊车', link: '/modules/planning/source/open-space' },
+            { text: '核心数据结构', link: '/modules/planning/source/planning-base-common' },
+            { text: '一维轨迹原语', link: '/modules/planning/source/trajectory1d' },
+            { text: '数学库', link: '/modules/planning/source/planning-math' },
+          ],
+        },
+        {
+          text: '专题补充',
+          collapsed: true,
+          items: [
+            { text: 'Lattice Planner', link: '/modules/planning/supplementary/lattice-planner' },
+            { text: 'Navi Planner', link: '/modules/planning/supplementary/navi-planner' },
+            { text: '学习型组件', link: '/modules/planning/supplementary/learning-based' },
+            { text: '补充组件', link: '/modules/planning/supplementary/supplementary' },
+          ],
+        },
+      ],
+      '/modules/control/': [
+        {
+          text: 'Control 控制',
+          items: [
+            { text: '模块总览', link: '/modules/control/' },
+          ],
+        },
+        {
+          text: '架构与机制',
+          collapsed: false,
+          items: [
+            { text: '组件源码', link: '/modules/control/architecture/control-component' },
+            { text: '子模块', link: '/modules/control/architecture/control-submodules' },
+            { text: '配置参考', link: '/modules/control/architecture/config-reference' },
+          ],
+        },
+        {
+          text: '源码解析',
+          collapsed: false,
+          items: [
+            { text: '控制器', link: '/modules/control/source/controllers' },
+            { text: '算法基础组件', link: '/modules/control/source/controller-base-common' },
+            { text: '扩展基类', link: '/modules/control/source/task-base-extend' },
+          ],
+        },
+      ],
       '/modules/': [
         {
           text: '感知与决策',
@@ -251,29 +320,7 @@ export default withMermaid(defineConfig({
             { text: 'Perception 核心算法', link: '/modules/perception/algorithms' },
             { text: 'Prediction 预测', link: '/modules/prediction/' },
             { text: 'Planning 规划', link: '/modules/planning/' },
-            { text: 'Planning 决策逻辑', link: '/modules/planning/decision' },
-            { text: 'Planning Component/PncMap', link: '/modules/planning/component-and-pncmap' },
-            { text: 'Planning 接口层', link: '/modules/planning/interface-base' },
-            { text: 'Planning 开放空间与泊车', link: '/modules/planning/open-space-and-parking' },
-            { text: 'Planning 参考线', link: '/modules/planning/reference-line' },
-            { text: 'Planning 格栅规划器', link: '/modules/planning/lattice-planner' },
-            { text: 'Planning 导航规划器', link: '/modules/planning/navi-planner' },
-            { text: 'Planning 规划器总览', link: '/modules/planning/planners' },
-            { text: 'Planning 交通规则', link: '/modules/planning/traffic-rules' },
-            { text: 'Planning 场景机', link: '/modules/planning/scenarios' },
-            { text: 'Planning 规划任务', link: '/modules/planning/tasks' },
-            { text: 'Planning 核心数据结构', link: '/modules/planning/planning-base-common' },
-            { text: 'Planning 数学库', link: '/modules/planning/planning-math' },
-            { text: 'Planning 学习型组件', link: '/modules/planning/planning-learning-based' },
-            { text: 'Planning 补充组件', link: '/modules/planning/planning-supplementary' },
-            { text: 'Planning 配置参考', link: '/modules/planning/planning-config-reference' },
             { text: 'Control 控制', link: '/modules/control/' },
-            { text: 'Control 组件源码', link: '/modules/control/control-component' },
-            { text: 'Control 扩展基类', link: '/modules/control/task-base-extend' },
-            { text: 'Control 控制器', link: '/modules/control/controllers' },
-            { text: 'Control 算法基础组件', link: '/modules/control/controller-base-common' },
-            { text: 'Control 子模块', link: '/modules/control/control-submodules' },
-            { text: 'Control 配置参考', link: '/modules/control/control-config-reference' },
           ],
         },
         {
