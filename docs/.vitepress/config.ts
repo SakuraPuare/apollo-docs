@@ -338,6 +338,7 @@ export default withMermaid(defineConfig({
                 { text: 'RSS 安全距离决策器', link: '/modules/planning/source/task-rss-decider' },
                 { text: '规则停车决策器', link: '/modules/planning/source/task-rule-based-stop-decider' },
                 { text: '障碍物绕行决策器', link: '/modules/planning/source/task-obstacle-nudge-decider' },
+                { text: '车道跟随路径', link: '/modules/planning/source/task-lane-follow-path' },
                 { text: 'ST 图速度优化器', link: '/modules/planning/source/st-graph-optimizer' },
               ],
             },
