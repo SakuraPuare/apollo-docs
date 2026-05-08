@@ -16,6 +16,22 @@ const docsGitHubOwner = 'SakuraPuare'
 /** Apollo 官方上游，文档内容参考的源码与发布仓库 */
 const apolloUpstreamURL = 'https://github.com/ApolloAuto/apollo'
 
+// ─── 可复用的模块导航列表（用于各模块 sidebar 顶部） ───
+const moduleNav = [
+  { text: 'Perception 感知', link: '/modules/perception/' },
+  { text: 'Prediction 预测', link: '/modules/prediction/' },
+  { text: 'Planning 规划', link: '/modules/planning/' },
+  { text: 'Control 控制', link: '/modules/control/' },
+  { text: 'Localization 定位', link: '/modules/localization/' },
+  { text: 'Routing 路由', link: '/modules/routing/' },
+  { text: 'Map 地图', link: '/modules/map/' },
+  { text: 'Dreamview 可视化', link: '/modules/dreamview/' },
+  { text: 'Drivers 驱动', link: '/modules/drivers/' },
+  { text: 'Canbus 总线', link: '/modules/canbus/' },
+  { text: 'Guardian 安全守护', link: '/modules/guardian/' },
+  { text: 'Monitor 监控', link: '/modules/monitor/' },
+]
+
 export default withMermaid(defineConfig({
   base,
   title: 'Apollo Docs',
@@ -45,7 +61,6 @@ export default withMermaid(defineConfig({
       groupIconVitePlugin(),
       GitChangelog({
         repoURL: () => docsRepoURL,
-        // 普通邮箱不会自动推断 GitHub；在此绑定 username 后贡献者名前会链到个人主页
         mapAuthors: [
           {
             name: 'Steven Moder',
@@ -72,8 +87,11 @@ export default withMermaid(defineConfig({
 
   themeConfig: {
     logo: '/logo.png',
-    siteTitle: 'Docs', // We have logo before title
+    siteTitle: 'Docs',
 
+    // ═══════════════════════════════════════════════════════════
+    // NAV（顶部导航栏）
+    // ═══════════════════════════════════════════════════════════
     nav: [
       {
         text: '指南',
@@ -139,7 +157,11 @@ export default withMermaid(defineConfig({
       },
     ],
 
+    // ═══════════════════════════════════════════════════════════
+    // SIDEBAR
+    // ═══════════════════════════════════════════════════════════
     sidebar: {
+      // ─── 指南 ───
       '/guide/': [
         {
           text: '入门',
@@ -207,6 +229,8 @@ export default withMermaid(defineConfig({
           ],
         },
       ],
+
+      // ─── Cyber ───
       '/cyber/': [
         {
           text: 'Cyber 中间件框架',
@@ -251,24 +275,13 @@ export default withMermaid(defineConfig({
           ],
         },
       ],
+
+      // ─── Planning ───
       '/modules/planning/': [
         {
-          text: '源码解析模块',
+          text: '全部模块',
           collapsed: true,
-          items: [
-            { text: 'Perception 感知', link: '/modules/perception/' },
-            { text: 'Prediction 预测', link: '/modules/prediction/' },
-            { text: 'Planning 规划', link: '/modules/planning/' },
-            { text: 'Control 控制', link: '/modules/control/' },
-            { text: 'Localization 定位', link: '/modules/localization/' },
-            { text: 'Routing 路由', link: '/modules/routing/' },
-            { text: 'Map 地图', link: '/modules/map/' },
-            { text: 'Dreamview 可视化', link: '/modules/dreamview/' },
-            { text: 'Drivers 驱动', link: '/modules/drivers/' },
-            { text: 'Canbus 总线', link: '/modules/canbus/' },
-            { text: 'Guardian 安全守护', link: '/modules/guardian/' },
-            { text: 'Monitor 监控', link: '/modules/monitor/' },
-          ],
+          items: moduleNav,
         },
         {
           text: 'Planning 规划',
@@ -287,69 +300,64 @@ export default withMermaid(defineConfig({
           ],
         },
         {
-          text: '源码解析',
+          text: '组件与框架',
           collapsed: false,
           items: [
-            {
-              text: '组件与框架',
-              collapsed: false,
-              items: [
-                { text: '组件入口与 PncMap', link: '/modules/planning/source/component-and-pncmap' },
-                { text: '接口层设计', link: '/modules/planning/source/interface-base' },
-                { text: 'Planner 规划器', link: '/modules/planning/source/planners' },
-                { text: '配置参考', link: '/modules/planning/source/config-reference' },
-              ],
-            },
-            {
-              text: '参考线与基础库',
-              collapsed: false,
-              items: [
-                { text: '参考线', link: '/modules/planning/source/reference-line' },
-                { text: '核心数据结构', link: '/modules/planning/source/planning-base-common' },
-                { text: '一维轨迹原语', link: '/modules/planning/source/trajectory1d' },
-                { text: '数学库', link: '/modules/planning/source/planning-math' },
-                { text: '路径工具类', link: '/modules/planning/source/path-util' },
-                { text: '工具函数库', link: '/modules/planning/source/planning-util' },
-              ],
-            },
-            {
-              text: '场景机',
-              collapsed: true,
-              items: [
-                { text: '场景机总览', link: '/modules/planning/source/scenarios' },
-                { text: '停车标志场景阶段', link: '/modules/planning/source/scenario-stages-stop-sign' },
-                { text: '信号灯与让行场景阶段', link: '/modules/planning/source/scenario-stages-traffic-yield' },
-                { text: '无保护转向场景阶段', link: '/modules/planning/source/scenario-stages-unprotected-turn' },
-                { text: '无保护路口场景', link: '/modules/planning/source/bare-intersection-unprotected' },
-                { text: '紧急靠边停车场景', link: '/modules/planning/source/emergency-pull-over' },
-                { text: '紧急停车场景', link: '/modules/planning/source/emergency-stop' },
-                { text: '靠边停车场景', link: '/modules/planning/source/pull-over' },
-                { text: '驶出停车位场景阶段', link: '/modules/planning/source/scenario-stages-park-and-go' },
-                { text: '靠边停车场景阶段', link: '/modules/planning/source/scenario-stages-pull-over' },
-                { text: '代客泊车场景', link: '/modules/planning/source/valet-parking' },
-              ],
-            },
-            {
-              text: '规划任务',
-              collapsed: true,
-              items: [
-                { text: '任务总览', link: '/modules/planning/source/tasks' },
-                { text: '兜底与倒车路径任务', link: '/modules/planning/source/task-fallback-reverse-path' },
-                { text: 'RSS 安全距离决策器', link: '/modules/planning/source/task-rss-decider' },
-                { text: '规则停车决策器', link: '/modules/planning/source/task-rule-based-stop-decider' },
-                { text: '障碍物绕行决策器', link: '/modules/planning/source/task-obstacle-nudge-decider' },
-                { text: '车道跟随路径', link: '/modules/planning/source/task-lane-follow-path' },
-                { text: 'ST 图速度优化器', link: '/modules/planning/source/st-graph-optimizer' },
-              ],
-            },
-            {
-              text: '交通规则与开放空间',
-              collapsed: true,
-              items: [
-                { text: '交通规则', link: '/modules/planning/source/traffic-rules' },
-                { text: '开放空间与泊车', link: '/modules/planning/source/open-space' },
-              ],
-            },
+            { text: '组件入口与 PncMap', link: '/modules/planning/source/component-and-pncmap' },
+            { text: '接口层设计', link: '/modules/planning/source/interface-base' },
+            { text: 'Planner 规划器', link: '/modules/planning/source/planners' },
+            { text: '配置参考', link: '/modules/planning/source/config-reference' },
+          ],
+        },
+        {
+          text: '参考线与基础库',
+          collapsed: false,
+          items: [
+            { text: '参考线', link: '/modules/planning/source/reference-line' },
+            { text: '核心数据结构', link: '/modules/planning/source/planning-base-common' },
+            { text: '一维轨迹原语', link: '/modules/planning/source/trajectory1d' },
+            { text: '数学库', link: '/modules/planning/source/planning-math' },
+            { text: '路径工具类', link: '/modules/planning/source/path-util' },
+            { text: '工具函数库', link: '/modules/planning/source/planning-util' },
+          ],
+        },
+        {
+          text: '场景机',
+          collapsed: true,
+          items: [
+            { text: '场景机总览', link: '/modules/planning/source/scenarios' },
+            { text: '停车标志场景阶段', link: '/modules/planning/source/scenario-stages-stop-sign' },
+            { text: '信号灯与让行场景阶段', link: '/modules/planning/source/scenario-stages-traffic-yield' },
+            { text: '无保护转向场景阶段', link: '/modules/planning/source/scenario-stages-unprotected-turn' },
+            { text: '无保护路口场景', link: '/modules/planning/source/bare-intersection-unprotected' },
+            { text: '紧急靠边停车场景', link: '/modules/planning/source/emergency-pull-over' },
+            { text: '紧急停车场景', link: '/modules/planning/source/emergency-stop' },
+            { text: '靠边停车场景', link: '/modules/planning/source/pull-over' },
+            { text: '驶出停车位场景阶段', link: '/modules/planning/source/scenario-stages-park-and-go' },
+            { text: '靠边停车场景阶段', link: '/modules/planning/source/scenario-stages-pull-over' },
+            { text: '代客泊车场景', link: '/modules/planning/source/valet-parking' },
+          ],
+        },
+        {
+          text: '规划任务',
+          collapsed: true,
+          items: [
+            { text: '任务总览', link: '/modules/planning/source/tasks' },
+            { text: '兜底与倒车路径任务', link: '/modules/planning/source/task-fallback-reverse-path' },
+            { text: 'RSS 安全距离决策器', link: '/modules/planning/source/task-rss-decider' },
+            { text: '规则停车决策器', link: '/modules/planning/source/task-rule-based-stop-decider' },
+            { text: '障碍物绕行决策器', link: '/modules/planning/source/task-obstacle-nudge-decider' },
+            { text: '车道跟随路径', link: '/modules/planning/source/task-lane-follow-path' },
+            { text: 'PiecewiseJerk 速度优化器', link: '/modules/planning/source/task-piecewise-jerk-speed' },
+            { text: 'ST 图速度优化器', link: '/modules/planning/source/st-graph-optimizer' },
+          ],
+        },
+        {
+          text: '交通规则与开放空间',
+          collapsed: true,
+          items: [
+            { text: '交通规则', link: '/modules/planning/source/traffic-rules' },
+            { text: '开放空间与泊车', link: '/modules/planning/source/open-space' },
           ],
         },
         {
@@ -365,24 +373,13 @@ export default withMermaid(defineConfig({
           ],
         },
       ],
+
+      // ─── Control ───
       '/modules/control/': [
         {
-          text: '源码解析模块',
+          text: '全部模块',
           collapsed: true,
-          items: [
-            { text: 'Perception 感知', link: '/modules/perception/' },
-            { text: 'Prediction 预测', link: '/modules/prediction/' },
-            { text: 'Planning 规划', link: '/modules/planning/' },
-            { text: 'Control 控制', link: '/modules/control/' },
-            { text: 'Localization 定位', link: '/modules/localization/' },
-            { text: 'Routing 路由', link: '/modules/routing/' },
-            { text: 'Map 地图', link: '/modules/map/' },
-            { text: 'Dreamview 可视化', link: '/modules/dreamview/' },
-            { text: 'Drivers 驱动', link: '/modules/drivers/' },
-            { text: 'Canbus 总线', link: '/modules/canbus/' },
-            { text: 'Guardian 安全守护', link: '/modules/guardian/' },
-            { text: 'Monitor 监控', link: '/modules/monitor/' },
-          ],
+          items: moduleNav,
         },
         {
           text: 'Control 控制',
@@ -403,20 +400,16 @@ export default withMermaid(defineConfig({
           ],
         },
       ],
+
+      // ─── 通用模块列表（/modules/ 下非 planning/control 的页面） ───
       '/modules/': [
         {
-          text: '感知与预测',
+          text: '感知与决策',
           collapsed: false,
           items: [
             { text: 'Perception 感知', link: '/modules/perception/' },
             { text: 'Perception 核心算法', link: '/modules/perception/algorithms' },
             { text: 'Prediction 预测', link: '/modules/prediction/' },
-          ],
-        },
-        {
-          text: '规划与控制',
-          collapsed: false,
-          items: [
             { text: 'Planning 规划', link: '/modules/planning/' },
             { text: 'Control 控制', link: '/modules/control/' },
           ],
@@ -479,7 +472,6 @@ export default withMermaid(defineConfig({
       },
     ],
 
-    /** 首页等无侧边栏页面底部；message / copyright 支持 HTML（见 VPFooter） */
     footer: {
       message: [
         `<span class="apollo-footer-byline">`,
